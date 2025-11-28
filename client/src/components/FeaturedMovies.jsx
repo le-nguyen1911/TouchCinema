@@ -1,11 +1,22 @@
 import { ArrowRight } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import BlurCircle from "./BlurCircle";
 import MovieCard from "./MovieCard";
-import { assets, dummyShowsData } from "../assets/assets";
+import { useAuth } from "@clerk/clerk-react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchShows } from "../redux/showSlice";
+
 const FeaturedMovies = () => {
-    const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { getToken } = useAuth();
+  const dispatch = useDispatch();
+
+  const shows = useSelector((state) => state.show.shows); 
+
+  useEffect(() => {
+    dispatch(fetchShows({ getToken }));
+  }, []);
   return (
     <div className="px-6 ms:px-16 lg:px-24 xl:px-44 overflow-hidden">
       <div className="relative flex items-center justify-between pt-20 pb-10">
@@ -16,7 +27,7 @@ const FeaturedMovies = () => {
         </button>
       </div>
       <div className="flex flex-wrap justify-center gap-8 mt-8">
-        {dummyShowsData.slice(0,4).map((show)=>(
+        {shows.slice(0,4).map((show)=>(
             <MovieCard key={show._id} movie={show} />
         ))}
       </div>

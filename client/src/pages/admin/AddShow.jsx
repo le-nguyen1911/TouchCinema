@@ -4,16 +4,30 @@ import Loading from "../../components/Loading";
 import Title from "../../components/admin/Title";
 import { CheckIcon, DeleteIcon, StarIcon } from "lucide-react";
 import { kconverter } from "../../lib/kconverter";
+import { useAuth, useUser } from "@clerk/clerk-react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addShow,
+  fetchNowPlayingMovies,
+  image_base_url,
+  resetAddShow ,
+} from "../../redux/showSlice";
+import toast from "react-hot-toast";
 
 const AddShow = () => {
   const currency = import.meta.env.VITE_CURRENCY;
+  const { user } = useUser();
+  const { getToken } = useAuth();
+  const dispatch = useDispatch();
 
-  const [nowPlayingMovies, setNowPlayingMovies] = useState([]);
+  const nowPlayingMovies = useSelector((state) => state.show.nowPlayingMovies);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [dateTimeSelection, setDateTimeSelection] = useState({});
   const [dateTimeInput, setDateTimeInput] = useState("");
   const [showPrice, setShowPrice] = useState("");
+  const [addingShow, setAddingShow] = useState(false);
 
+  
   const handleDateTimeAdd = () => {
     if (!dateTimeInput) return;
     const [date, time] = dateTimeInput.split("T");
@@ -43,12 +57,46 @@ const AddShow = () => {
     });
   };
 
-  const fetchNowPlayingMovies = async () => {
-    setNowPlayingMovies(dummyShowsData);
+  const handleSubmit = () => {
+    if (
+      !selectedMovie ||
+      !showPrice ||
+      Object.keys(dateTimeSelection).length === 0
+    ) {
+      return toast.error("Missing required fields");
+    }
+
+    dispatch(
+      addShow({
+        getToken,
+        movieId: selectedMovie,
+        dateTimeSelection,
+        showPrice,
+      })
+    )
+      .unwrap()
+      .then((res) => {
+        if (res.success) {
+          toast.success("Thêm suất chiếu thành công!");
+
+          // reset form
+          setSelectedMovie(null);
+          setDateTimeSelection({});
+          setShowPrice("");
+
+          dispatch(resetAddShow());
+        } else {
+          toast.error(res.message);
+        }
+      })
+      .catch((err) => toast.error(err));
   };
+
   useEffect(() => {
-    fetchNowPlayingMovies();
-  });
+    if (user) {
+      dispatch(fetchNowPlayingMovies({ getToken }));
+    }
+  }, [user]);
 
   return nowPlayingMovies.length > 0 ? (
     <>
@@ -64,7 +112,7 @@ const AddShow = () => {
             >
               <div className="relative rounded-lg overflow-hidden">
                 <img
-                  src={movie.poster_path}
+                  src={image_base_url + movie.poster_path}
                   alt=""
                   className="w-full object-cover brightness-90"
                 />
@@ -157,7 +205,13 @@ const AddShow = () => {
           </ul>
         </div>
       )}
-      <button className="bg-primary text-white px-4  py-2 mt-6 rounded hover:bg-primary-dull transition-all cursor-pointer">Thêm suất chiếu</button>
+      <button
+        onClick={handleSubmit}
+        disabled={addingShow}
+        className="bg-primary text-white px-4  py-2 mt-6 rounded hover:bg-primary-dull transition-all cursor-pointer"
+      >
+        Thêm suất chiếu
+      </button>
     </>
   ) : (
     <Loading />

@@ -1,37 +1,67 @@
-import { use, useEffect, useState } from "react";
-import { data, useNavigate, useParams } from "react-router-dom";
-import { dummyDateTimeData, dummyShowsData } from "../assets/assets";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import BlurCircle from "../components/BlurCircle";
-import { Heart, PlayCircle, PlayCircleIcon, StarIcon } from "lucide-react";
+import { Heart, PlayCircleIcon, StarIcon } from "lucide-react";
 import timeFormat from "../lib/timeFormat";
 import DateSelect from "../components/DateSelect";
 import MovieCard from "../components/MovieCard";
 import Loading from "../components/Loading";
+import { fetchShowById, fetchShows, image_base_url } from "../redux/showSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { useAuth, useUser } from "@clerk/clerk-react";
+import { fetchFavoriteMovies, updateFavoriteMovie } from "../redux/favoriteSlice";
+import toast from "react-hot-toast";
 
 const MovieDetail = () => {
-
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const { id } = useParams();
-  
+  const { user } = useUser();
   const [show, setShow] = useState(null);
-  const getshow = async () => {
-    const show = dummyShowsData.find((show) => show._id === id);
-    if(show){
-    setShow({
-      movie: show,
-      datetime: dummyDateTimeData
-    })
-  }
-  };
+
+  const { getToken } = useAuth();
+  const dispatch = useDispatch();
+
+  const singleShow = useSelector((state) => state.show.singleShow);
+  const shows = useSelector((state) => state.show.shows);
+  const favoriteMovies = useSelector((state) => state.favorite.favoriteMovies);
+
+  // --- Fetch Favorite ---
   useEffect(() => {
-    getshow();
-    console.log(show);
+    if (user) {
+      dispatch(fetchFavoriteMovies({ getToken }));
+    }
+  }, [user]);
+
+  // --- Click favorite ---
+  const handleFavorite = () => {
+    if (!user) return toast.error("Vui lòng đăng nhập trước!");
+    dispatch(updateFavoriteMovie({ getToken, movieId: id }));
+  };
+
+  // --- Fetch show by ID ---
+  useEffect(() => {
+    dispatch(fetchShowById({ id }));
   }, [id]);
+
+  // --- Khi Redux trả singleShow → đưa vào state show ---
+  useEffect(() => {
+    if (singleShow) {
+      setShow({
+        movie: singleShow.movie,
+        datetime: singleShow.dateTime,
+      });
+    }
+  }, [singleShow]);
+
+  // --- Fetch all shows (để load “phim bạn có thể thích”) ---
+  useEffect(() => {
+    dispatch(fetchShows({ getToken }));
+  }, []);
   return show ? (
     <div className="px-6 md:px-16 lg:px-40 pt-30 md:pt-50">
       <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
         <img
-          src={show.movie.poster_path}
+          src={image_base_url + show.movie.poster_path}
           alt=""
           className="max-md:mx-auto rounded-xl h-104 max-w-70 object-cover"
         />
@@ -65,8 +95,14 @@ const MovieDetail = () => {
             >
               Mua vé ngay
             </a>
-            <button className="bg-gray-700 p-2.5 rounded-full transition-all duration-300 cursor-pointer active:scale-95">
-              <Heart className="size-6" />
+            <button onClick={handleFavorite} className="bg-gray-700 p-2.5 rounded-full transition-all duration-300 cursor-pointer active:scale-95">
+              <Heart
+                className={`w-5 h-5 ${
+                  favoriteMovies.some((movie) => movie._id === id)
+                    ? "fill-primary text-primary"
+                    : ""
+                }`}
+              />
             </button>
           </div>
         </div>
@@ -75,27 +111,39 @@ const MovieDetail = () => {
       <p>Diễn viên yêu thích</p>
       <div className="overflow-x-auto no-scrollbar mt-8 pb-4">
         <div className="flex items-center gap-4 w-max px-4 justify-center">
-            {show.movie.casts.slice(0,12).map((cast, index)=>(
-             <div className="flex flex-col items-center text-center" key={index}>
-              <img src={cast.profile_path} alt="" className="rounded-full h-20 md:h-20 aspect-square object-cover"/>
+          {show.movie.casts.slice(0, 12).map((cast, index) => (
+            <div className="flex flex-col items-center text-center" key={index}>
+              <img
+                src={image_base_url + cast.profile_path}
+                alt=""
+                className="rounded-full h-20 md:h-20 aspect-square object-cover"
+              />
               <p className="font-medium text-xs mt-3">{cast.name}</p>
-             </div> 
-            ))}
+            </div>
+          ))}
         </div>
       </div>
       <DateSelect datetime={show.datetime} id={id} />
       <p className="text-lg font-medium mt-2 mb-8">Phim bạn có thể thích</p>
       <div className="flex flex-wrap justify-center gap-8">
-            {dummyShowsData.slice(0,4).map((item,index)=>(
-              <MovieCard movie={item} key={index} />
-            ))}
+        {shows.slice(0, 4).map((item, index) => (
+          <MovieCard movie={item} key={index} />
+        ))}
       </div>
       <div className="flex justify-center mt-20">
-          <button onClick={()=>{navigate('/movie'); scrollTo(0,0)}} className="px-10 rounded-xl py-3 text-sm bg-primary hover:bg-primary-dull transition-all duration-300 font-medium cursor-pointer ">Hiển thị thêm</button>
+        <button
+          onClick={() => {
+            navigate("/movie");
+            scrollTo(0, 0);
+          }}
+          className="px-10 rounded-xl py-3 text-sm bg-primary hover:bg-primary-dull transition-all duration-300 font-medium cursor-pointer "
+        >
+          Hiển thị thêm
+        </button>
       </div>
     </div>
   ) : (
-   <Loading />
+    <Loading />
   );
 };
 export default MovieDetail;
