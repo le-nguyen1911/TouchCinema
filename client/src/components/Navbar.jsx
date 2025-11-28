@@ -1,13 +1,23 @@
 import { Link, useNavigate } from "react-router-dom";
 import LOGO from "../assets/logo.png";
 import { MenuIcon, SearchIcon, TicketPlus, XIcon } from "lucide-react";
-import { useState } from "react";
-import { useClerk, UserButton, useUser } from "@clerk/clerk-react";
+import { useEffect, useState } from "react";
+import { useAuth, useClerk, UserButton, useUser } from "@clerk/clerk-react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchFavoriteMovies } from "../redux/favoriteSlice";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const {user} = useUser()
-  const {openSignIn} = useClerk()
-  const navigate = useNavigate()
+  const { user } = useUser();
+  const { openSignIn } = useClerk();
+  const navigate = useNavigate();
+  const { getToken } = useAuth();
+  const dispatch = useDispatch();
+
+  const favoriteMovies = useSelector((state) => state.favorite.favoriteMovies);
+
+  useEffect(() => {
+    dispatch(fetchFavoriteMovies({ getToken }));
+  }, []);
   return (
     <div className="fixed top-0 left-0 z-50 w-full flex items-centre justify-between px-6 md:px-16 lg:px-36 py-5">
       <Link to={"/"} className="max-md:flex-1">
@@ -53,7 +63,7 @@ const Navbar = () => {
         >
           RẠP
         </Link>
-       
+
         <Link
           to={"/"}
           onClick={() => {
@@ -62,29 +72,35 @@ const Navbar = () => {
         >
           SẮP CHIẾU
         </Link>
-        <Link
+      {favoriteMovies.length > 0  &&  <Link
           to={"/favorite"}
           onClick={() => {
             scrollTo(0, 0), setIsOpen(false);
           }}
         >
           YÊU THÍCH
-        </Link>
+        </Link> }
       </div>
       <div className="flex items-center gap-8">
         <SearchIcon className="size-8 max-md:hidden cursor-pointer" />
-        {
-          !user ? (<button onClick={openSignIn} className="px-4 py-1 sm:px-7 sm:py-2 bg-primary hover:bg-primary-dull transition rounded-full font-medium cursor-pointer  ">
+        {!user ? (
+          <button
+            onClick={openSignIn}
+            className="px-4 py-1 sm:px-7 sm:py-2 bg-primary hover:bg-primary-dull transition rounded-full font-medium cursor-pointer  "
+          >
             Đăng nhập
-          </button>): (
-            <UserButton>
-              <UserButton.MenuItems>
-                <UserButton.Action label="My Booking" labelIcon={<TicketPlus width={15}  />} onClick={()=>navigate('/my-booking')} />
-              </UserButton.MenuItems>
-            </UserButton>
-          )
-        }
-        
+          </button>
+        ) : (
+          <UserButton>
+            <UserButton.MenuItems>
+              <UserButton.Action
+                label="My Booking"
+                labelIcon={<TicketPlus width={15} />}
+                onClick={() => navigate("/my-booking")}
+              />
+            </UserButton.MenuItems>
+          </UserButton>
+        )}
       </div>
       <div
         className="flex items-center justify-center md:hidden max-md:ml-4 cursor-pointer"

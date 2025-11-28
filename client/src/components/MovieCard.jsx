@@ -2,6 +2,7 @@ import { StarIcon } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import timeFormat from "../lib/timeFormat";
+import { image_base_url } from "../redux/showSlice";
 
 const MovieCard = ({ movie }) => {
   const navigate = useNavigate();
@@ -9,7 +10,7 @@ const MovieCard = ({ movie }) => {
   return (
     <div className="flex flex-col justify-between p-3 bg-gray-800 rounded-2xl hover:-translate-y-1 transition-all duration-300 w-72">
       <img
-        src={movie.backdrop_path}
+        src={image_base_url + movie.backdrop_path}
         alt={movie.title}
         onClick={() => {
           navigate(`/movie/${movie._id}`);
