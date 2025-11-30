@@ -38,7 +38,6 @@ const Navbar = () => {
         <img src={LOGO} alt="logo" className="w-44 h-auto" />
       </Link>
 
-      {/* MENU ITEMS */}
       <div
         className={`
           max-md:absolute max-md:top-0 max-md:left-0

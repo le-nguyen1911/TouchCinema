@@ -144,7 +144,6 @@ const SeatLayout = () => {
 
   return (
     <div className="flex flex-col md:flex-row px-6 md:px-16 lg:px-40 py-30 md:pt-50">
-      {/* TIME LIST */}
       <div className="w-60 bg-primary/10 border border-primary/20 rounded-lg py-10 h-max md:sticky md:top-30">
         <p className="text-lg font-medium px-6">Thời gian có sẵn</p>
 
@@ -171,7 +170,6 @@ const SeatLayout = () => {
         </div>
       </div>
 
-      {/* SEATS */}
       <div className="relative flex-1 flex flex-col items-center max-md:mt-16">
         <BlurCircle top="-100px" left="-100px" />
         <BlurCircle bottom="0" right="0" />
@@ -180,14 +178,11 @@ const SeatLayout = () => {
         <img src={assets.screenImage} alt="" />
         <p className="text-gray-400 text-sm mb-6">MÀN HÌNH</p>
 
-        {/* SEAT GRID */}
         <div className="flex flex-col items-center mt-10 text-md text-gray-300">
-          {/* A + B */}
           <div className="grid grid-cols-2 md:grid-cols-1 gap-8 md:gap-2 mb-6">
             {groupRows[0].map((row) => renderSeat(row))}
           </div>
 
-          {/* C → J */}
           <div className="grid grid-cols-2 gap-11">
             {groupRows.slice(1).map((group, idx) => (
               <div key={idx}>{group.map((row) => renderSeat(row))}</div>
