@@ -7,9 +7,7 @@ import User from "../models/User.js";
 import Show from "../models/Show.js";     // ⭐ cần thêm
 import transporter from "../configs/mail.js";
 
-/* ============================
-   TẠO INSTANCE VNPAY
-============================= */
+
 const createVnpInstance = () =>
   new VNPay({
     tmnCode: process.env.VNP_TMN_CODE,
@@ -20,9 +18,7 @@ const createVnpInstance = () =>
     enableLog: false,
   });
 
-/* ============================
-   SEND PAYMENT EMAIL
-============================= */
+
 const sendPaymentEmail = async (email, booking, movie) => {
   try {
     await transporter.sendMail({
@@ -54,9 +50,7 @@ const sendPaymentEmail = async (email, booking, movie) => {
   }
 };
 
-/* ============================
-   1) TẠO URL THANH TOÁN
-============================= */
+
 export const createPaymentVnpay = async (req, res) => {
   try {
     const { bookingId } = req.body;
@@ -68,7 +62,7 @@ export const createPaymentVnpay = async (req, res) => {
     const vnpay = createVnpInstance();
 
     const paymentUrl = vnpay.buildPaymentUrl({
-      vnp_Amount: booking.amount * 100,  // ⭐ số tiền * 100
+      vnp_Amount: booking.amount ,  
       vnp_IpAddr: req.ip || "127.0.0.1",
       vnp_TxnRef: booking._id.toString(),
       vnp_OrderInfo: `Thanh toán vé #${booking._id}`,
@@ -84,9 +78,7 @@ export const createPaymentVnpay = async (req, res) => {
   }
 };
 
-/* ============================
-   2) RETURN URL (USER REDIRECT)
-============================= */
+
 export const vnpayReturn = async (req, res) => {
   try {
     const vnpay = createVnpInstance();
@@ -97,7 +89,7 @@ export const vnpayReturn = async (req, res) => {
 
     if (verify.isSuccess && responseCode === "00") {
 
-      // Cập nhật trạng thái thanh toán
+ 
       const booking = await Booking.findByIdAndUpdate(
         bookingId,
         { isPaid: true },
@@ -125,9 +117,6 @@ export const vnpayReturn = async (req, res) => {
   }
 };
 
-/* ============================
-   3) IPN (BACKEND CALLBACK)
-============================= */
 export const vnpayIPN = async (req, res) => {
   try {
     const vnpay = createVnpInstance();

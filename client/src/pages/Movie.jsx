@@ -15,7 +15,6 @@ const Movie = () => {
 
   const [filtered, setFiltered] = useState([]);
 
-  // Load danh sách phim
   useEffect(() => {
     dispatch(fetchShows({ getToken }));
   }, []);
@@ -77,7 +76,6 @@ const Movie = () => {
             ))}
           </div>
 
-          {/* Nút trở lại khi đang tìm kiếm */}
           {keyword && (
             <div className="flex justify-center mt-10">
               <button
