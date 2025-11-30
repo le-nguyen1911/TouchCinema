@@ -32,7 +32,6 @@ const App = () => {
 
   const dispatch = useDispatch();
 
-  // Gọi API kiểm tra admin mỗi khi user thay đổi hoặc đổi route
   useEffect(() => {
     if (user) {
       dispatch(fetchIsAdmin({ getToken, location, navigate }));
