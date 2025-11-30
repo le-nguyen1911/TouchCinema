@@ -30,16 +30,19 @@ const Footer = () => {
               <h2 className="font-semibold mb-5">Về chúng tôi</h2>
               <ul className="text-sm space-y-2">
                 <li>
-                  <a href="#">Trang chủ</a>
+                  <a href="/">Trang chủ</a>
                 </li>
                 <li>
-                  <a href="#">Phim</a>
+                  <a href="/movie">Phim</a>
                 </li>
                 <li>
-                  <a href="#">Rạp</a>
+                  <a href="/about">Giới thiệu</a>
                 </li>
                 <li>
-                  <a href="#">Yêu thích</a>
+                  <a href="/discount">Khuyến mãi</a>
+                </li>
+                <li>
+                  <a href="/favorite">Yêu thích</a>
                 </li>
               </ul>
             </div>
@@ -48,6 +51,7 @@ const Footer = () => {
               <div className="text-sm space-y-2">
                 <p>0377467900</p>
                 <p>lenguyen001911@gmail.com</p>
+                <p>576 Đoàn Văn Bơ , Quận 4</p>
               </div>
             </div>
           </div>

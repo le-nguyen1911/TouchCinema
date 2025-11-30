@@ -3,10 +3,13 @@ import { VNPay } from "vnpay";
 import { VnpLocale, HashAlgorithm } from "vnpay/enums";
 import { dateFormat } from "vnpay/utils";
 import Booking from "../models/Booking.js";
+import User from "../models/User.js";
+import Show from "../models/Show.js";     // ⭐ cần thêm
+import transporter from "../configs/mail.js";
 
 /* ============================
-   TẠO INSTANCE VNPay DÙNG CHUNG
-============================ */
+   TẠO INSTANCE VNPAY
+============================= */
 const createVnpInstance = () =>
   new VNPay({
     tmnCode: process.env.VNP_TMN_CODE,
@@ -17,12 +20,43 @@ const createVnpInstance = () =>
     enableLog: false,
   });
 
-/* ===========================================================
-   1) CREATE PAYMENT URL  (POST /api/payment/create)
-   - Nhận bookingId
-   - Lấy amount từ DB (booking.amount)
-   - Trả về paymentUrl
-=========================================================== */
+/* ============================
+   SEND PAYMENT EMAIL
+============================= */
+const sendPaymentEmail = async (email, booking, movie) => {
+  try {
+    await transporter.sendMail({
+      from: `"TouchCinema" <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: "Thanh toán vé thành công ✔",
+      html: `
+        <h2>🎉 Cảm ơn bạn đã thanh toán!</h2>
+
+        <img 
+          src="https://image.tmdb.org/t/p/w500${movie.poster_path}" 
+          style="width:200px; border-radius:8px; margin-bottom:15px"
+        />
+
+        <p><b>🎬 Phim:</b> ${movie.title}</p>
+        <p><b>Mã booking:</b> ${booking._id}</p>
+        <p><b>Số tiền:</b> ${booking.amount.toLocaleString("vi-VN")}₫</p>
+        <p><b>Số ghế:</b> ${booking.bookedSeats.join(", ")}</p>
+
+        <p>📍 Địa điểm: 576/145D Đoàn Văn Bơ, Quận 4</p>
+        <br/>
+        <p>Chúc bạn xem phim vui vẻ cùng TouchCinema!</p>
+      `,
+    });
+
+    console.log("Email sent!");
+  } catch (err) {
+    console.log("Gửi email lỗi:", err.message);
+  }
+};
+
+/* ============================
+   1) TẠO URL THANH TOÁN
+============================= */
 export const createPaymentVnpay = async (req, res) => {
   try {
     const { bookingId } = req.body;
@@ -34,7 +68,7 @@ export const createPaymentVnpay = async (req, res) => {
     const vnpay = createVnpInstance();
 
     const paymentUrl = vnpay.buildPaymentUrl({
-      vnp_Amount: booking.amount ,
+      vnp_Amount: booking.amount * 100,  // ⭐ số tiền * 100
       vnp_IpAddr: req.ip || "127.0.0.1",
       vnp_TxnRef: booking._id.toString(),
       vnp_OrderInfo: `Thanh toán vé #${booking._id}`,
@@ -43,17 +77,16 @@ export const createPaymentVnpay = async (req, res) => {
       vnp_CreateDate: dateFormat(new Date()),
     });
 
-    return res.json({
-      success: true,
-      paymentUrl,
-    });
+    res.json({ success: true, paymentUrl });
+
   } catch (err) {
-    console.log(err);
-    return res.json({ success: false, message: err.message });
+    res.json({ success: false, message: err.message });
   }
 };
 
-
+/* ============================
+   2) RETURN URL (USER REDIRECT)
+============================= */
 export const vnpayReturn = async (req, res) => {
   try {
     const vnpay = createVnpInstance();
@@ -63,18 +96,38 @@ export const vnpayReturn = async (req, res) => {
     const responseCode = req.query.vnp_ResponseCode;
 
     if (verify.isSuccess && responseCode === "00") {
-      await Booking.findByIdAndUpdate(bookingId, { isPaid: true });
+
+      // Cập nhật trạng thái thanh toán
+      const booking = await Booking.findByIdAndUpdate(
+        bookingId,
+        { isPaid: true },
+        { new: true }
+      );
+
+    
+      const user = await User.findById(booking.user);
+
+     
+      const show = await Show.findById(booking.show).populate("movie");
+
+      if (user?.email && show?.movie) {
+        await sendPaymentEmail(user.email, booking, show.movie);
+      }
+
       return res.redirect("http://localhost:5173/payment-success");
     }
 
     return res.redirect("http://localhost:5173/payment-failed");
+
   } catch (err) {
     console.log(err);
     return res.redirect("http://localhost:5173/payment-failed");
   }
 };
 
-
+/* ============================
+   3) IPN (BACKEND CALLBACK)
+============================= */
 export const vnpayIPN = async (req, res) => {
   try {
     const vnpay = createVnpInstance();
@@ -83,18 +136,29 @@ export const vnpayIPN = async (req, res) => {
     const bookingId = req.query.vnp_TxnRef;
     const responseCode = req.query.vnp_ResponseCode;
 
-    if (!verify.isSuccess) {
+    if (!verify.isSuccess)
       return res.json({ RspCode: "97", Message: "Fail checksum" });
-    }
 
     if (responseCode === "00") {
-      await Booking.findByIdAndUpdate(bookingId, { isPaid: true });
+      const booking = await Booking.findByIdAndUpdate(
+        bookingId,
+        { isPaid: true },
+        { new: true }
+      );
+
+      const user = await User.findById(booking.user);
+      const show = await Show.findById(booking.show).populate("movie");
+
+      if (user?.email && show?.movie) {
+        await sendPaymentEmail(user.email, booking, show.movie);
+      }
+
       return res.json({ RspCode: "00", Message: "Success" });
     }
 
     return res.json({ RspCode: "00", Message: "Payment Failed" });
+
   } catch (err) {
-    console.log(err);
     return res.json({ RspCode: "99", Message: err.message });
   }
 };

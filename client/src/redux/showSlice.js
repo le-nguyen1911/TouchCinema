@@ -4,7 +4,6 @@ axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
 export const image_base_url = import.meta.env.VITE_TMDB_IMAGE_BASE_URL;
 
-// ============= Fetch Now Playing ===================
 export const fetchNowPlayingMovies = createAsyncThunk(
   "show/fetchNowPlayingMovies",
   async ({ getToken }, { rejectWithValue }) => {
@@ -22,7 +21,6 @@ export const fetchNowPlayingMovies = createAsyncThunk(
   }
 );
 
-// ============= Fetch All Shows ===================
 export const fetchShows = createAsyncThunk(
   "show/fetchShows",
   async ({ getToken }, { rejectWithValue }) => {
@@ -38,7 +36,6 @@ export const fetchShows = createAsyncThunk(
     }
   }
 );
-// ============= ADD SHOW ===================
 export const addShow = createAsyncThunk(
   "show/addShow",
   async (
@@ -72,7 +69,6 @@ export const addShow = createAsyncThunk(
     }
   }
 );
-// ============= FETCH SHOW BY ID ===================
 export const fetchShowById = createAsyncThunk(
   "show/fetchShowById",
   async ({ id }, { rejectWithValue }) => {
