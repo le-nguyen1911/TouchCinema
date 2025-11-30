@@ -10,7 +10,7 @@ import {
   addShow,
   fetchNowPlayingMovies,
   image_base_url,
-  resetAddShow ,
+  resetAddShow,
 } from "../../redux/showSlice";
 import toast from "react-hot-toast";
 
@@ -27,7 +27,6 @@ const AddShow = () => {
   const [showPrice, setShowPrice] = useState("");
   const [addingShow, setAddingShow] = useState(false);
 
-  
   const handleDateTimeAdd = () => {
     if (!dateTimeInput) return;
     const [date, time] = dateTimeInput.split("T");
@@ -166,8 +165,10 @@ const AddShow = () => {
             value={dateTimeInput}
             onChange={(e) => setDateTimeInput(e.target.value)}
             className="outline-none rounded-lg"
+            lang="vi"
+            step="60"
           />
-
+           
           <button
             onClick={handleDateTimeAdd}
             className="bg-primary/80 text-white px-3 py-2 text-sm rounded-lg hover:bg-primary cursor-pointer"

@@ -1,13 +1,18 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useAuth, useUser } from "@clerk/clerk-react";
-import { createVnpayPayment, fetchMyBookings } from "../redux/bookingSlice";
+import {
+  cancelBooking,
+  createVnpayPayment,
+  fetchMyBookings,
+} from "../redux/bookingSlice";
 
 import Loading from "../components/Loading";
 import BlurCircle from "../components/BlurCircle";
 import timeFormat from "../lib/timeFormat";
 import dateFormat from "../lib/dateFormat";
 import { image_base_url } from "../redux/showSlice";
+import toast from "react-hot-toast";
 
 const MyBooking = () => {
   const CURRENCY = import.meta.env.VITE_CURRENCY;
@@ -18,11 +23,15 @@ const MyBooking = () => {
 
   const { myBookings, loading } = useSelector((state) => state.booking);
 
+  // booking ID cần hủy
+  const [bookingToDelete, setBookingToDelete] = useState(null);
+
   useEffect(() => {
     if (user) {
       dispatch(fetchMyBookings({ getToken }));
     }
   }, [user]);
+
   const handlePayment = async (bookingId) => {
     try {
       const paymentUrl = await dispatch(
@@ -38,6 +47,18 @@ const MyBooking = () => {
       toast.error(err?.message || "Thanh toán thất bại");
     }
   };
+
+  // Hàm xác nhận hủy vé
+  const confirmCancel = async () => {
+    try {
+      await dispatch(cancelBooking({ bookingId: bookingToDelete, getToken })).unwrap();
+      toast.success("Hủy vé thành công!");
+      setBookingToDelete(null);
+    } catch (err) {
+      toast.error(err?.message || "Hủy vé thất bại");
+    }
+  };
+
   return !loading ? (
     <div className="relative px-6 md:px-16 lg:px-40 pt-30 md:pt-40 min-h-[80vh]">
       <BlurCircle top="100px" left="100px" />
@@ -45,11 +66,11 @@ const MyBooking = () => {
 
       <h1 className="text-lg font-semibold mb-4">Lịch sử mua vé</h1>
 
-      {myBookings.map((item, index) => (
+      {myBookings.map((item) => (
         <div
-          key={index}
+          key={item._id}
           className="flex flex-col md:flex-row justify-between bg-primary/8 
-          border border-primary/20 rounded-lg mt-4 p-2 max-w-3xl"
+          border border-primary/20 rounded-lg mt-4 p-2 max-w-4xl"
         >
           {/* Left: movie info */}
           <div className="flex flex-col md:flex-row">
@@ -86,6 +107,15 @@ const MyBooking = () => {
                   Thanh toán ngay
                 </button>
               )}
+
+              {!item.isPaid && (
+                <button
+                  onClick={() => setBookingToDelete(item._id)}
+                  className="text-red-500 hover:text-red-700 text-sm underline cursor-pointer mb-3"
+                >
+                  Hủy đặt vé
+                </button>
+              )}
             </div>
 
             <div className="text-sm">
@@ -102,6 +132,35 @@ const MyBooking = () => {
           </div>
         </div>
       ))}
+
+      {/* ==========================
+           POPUP XÁC NHẬN HỦY VÉ
+      =========================== */}
+
+      {bookingToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
+          <div className="bg-white p-6 rounded-xl shadow-lg w-80 text-center">
+            <h2 className="text-lg font-semibold mb-4">Xác nhận hủy vé</h2>
+            <p className="text-gray-600 mb-6">Bạn có chắc muốn hủy vé này không?</p>
+
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setBookingToDelete(null)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Không
+              </button>
+
+              <button
+                onClick={confirmCancel}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Hủy vé
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   ) : (
     <Loading />

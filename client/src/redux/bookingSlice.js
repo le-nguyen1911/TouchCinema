@@ -91,7 +91,24 @@ export const createVnpayPayment = createAsyncThunk(
     }
   }
 );
+export const cancelBooking = createAsyncThunk(
+  "booking/cancelBooking",
+  async ({ bookingId, getToken }, { rejectWithValue }) => {
+    try {
+      const token = await getToken();
 
+      const { data } = await axios.delete(`/api/booking/cancel/${bookingId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (data.success) return bookingId;
+
+      return rejectWithValue(data.message);
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
 const bookingSlice = createSlice({
   name: "booking",
   initialState: {
@@ -143,6 +160,19 @@ const bookingSlice = createSlice({
       })
       .addCase(createVnpayPayment.fulfilled, (state, action) => {
         state.paymentUrl = action.payload;
+      })
+      //hủy vé
+      .addCase(cancelBooking.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(cancelBooking.fulfilled, (state, action) => {
+        state.loading = false;
+        state.myBookings = state.myBookings.filter(
+          (b) => b._id !== action.payload
+        );
+      })
+      .addCase(cancelBooking.rejected, (state) => {
+        state.loading = false;
       });
   },
 });

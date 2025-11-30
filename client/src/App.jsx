@@ -17,6 +17,10 @@ import { SignIn, useAuth, useUser } from "@clerk/clerk-react";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { fetchIsAdmin } from "./redux/adminSlice";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailed from "./pages/PaymentFailed";
+import About from "./pages/About";
+import Discount from "./pages/Discount";
 
 const App = () => {
   const isAdminRoute = useLocation().pathname.startsWith("/admin");
@@ -45,6 +49,10 @@ const App = () => {
         <Route path="/movie/:id/:date" element={<SeatLayout />} />
         <Route path="/my-booking" element={<MyBooking />} />
         <Route path="/favorite" element={<Favorite />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/discount" element={<Discount />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-failed" element={<PaymentFailed />} />
         <Route
           path="/admin/*"
           element={
