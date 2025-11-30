@@ -114,14 +114,14 @@ export const vnpayReturn = async (req, res) => {
         await sendPaymentEmail(user.email, booking, show.movie);
       }
 
-      return res.redirect("http://localhost:5173/payment-success");
+      return res.redirect("https://touchcinema.vercel.app//payment-success");
     }
 
-    return res.redirect("http://localhost:5173/payment-failed");
+    return res.redirect("https://touchcinema.vercel.app//payment-failed");
 
   } catch (err) {
     console.log(err);
-    return res.redirect("http://localhost:5173/payment-failed");
+    return res.redirect("https://touchcinema.vercel.app//payment-failed");
   }
 };
 
