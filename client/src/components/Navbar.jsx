@@ -17,7 +17,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const dispatch = useDispatch();
-  const location = useLocation();    // ⭐ LẤY TRANG HIỆN TẠI
+  const location = useLocation();    
 
   const favoriteMovies = useSelector((state) => state.favorite.favoriteMovies);
 
@@ -25,10 +25,8 @@ const Navbar = () => {
     dispatch(fetchFavoriteMovies({ getToken }));
   }, []);
 
-  // ⭐ Hàm check active
   const isActive = (path) => location.pathname === path;
 
-  // ⭐ Style active
   const activeClass =
     "text-primary font-semibold border-b-2 border-primary pb-1";
   const normalClass =
@@ -101,9 +99,7 @@ const Navbar = () => {
         )}
       </div>
 
-      {/* RIGHT SIDE */}
       <div className="flex items-center gap-8">
-        {/* SEARCH BOX */}
         <div className="relative">
           {!searchOpen && (
             <SearchIcon
