@@ -1,10 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import adminReducer from './adminSlice.js'
-import showReducer from './showSlice.js'
-import favoriteReducer from './favoriteSlice.js'
-import bookingReducer from './bookingSlice.js'
-import searchReducer from './searchSlice.js'
+import adminReducer from "./adminSlice.js";
+import showReducer from "./showSlice.js";
+import favoriteReducer from "./favoriteSlice.js";
+import bookingReducer from "./bookingSlice.js";
+import searchReducer from "./searchSlice.js";
 import chatAISlice from "./chatAISlice.js";
+import userReducer from "./userSlice.js";
 export const store = configureStore({
   reducer: {
     admin: adminReducer,
@@ -13,5 +14,6 @@ export const store = configureStore({
     booking: bookingReducer,
     search: searchReducer,
     chatAI: chatAISlice,
+    users: userReducer,
   },
 });

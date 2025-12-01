@@ -5,6 +5,7 @@ import {
   ListCollapseIcon,
   ListIcon,
   PlusSquareIcon,
+  UserIcon,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
@@ -20,6 +21,7 @@ const AdminSidebar = () => {
     { name: "Thêm suất chiếu", path: "/admin/add-show", icon: PlusSquareIcon },
     { name: "Danh sách suất chiếu", path: "/admin/list-show", icon: ListIcon },
     { name: "Danh sách đặt vé", path: "/admin/list-booking", icon: ListCollapseIcon },
+    { name: "Danh sách người dùng", path: "/admin/list-users", icon: UserIcon },
   ];
 
   return (

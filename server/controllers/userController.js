@@ -66,3 +66,32 @@ export const getFavorites = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const { limit = 20, offset = 0 } = req.query;
+
+    const users = await clerkClient.users.getUserList({
+      limit: Number(limit),
+      offset: Number(offset),
+    });
+
+    const userData = users.data.map((u) => ({
+      id: u.id,
+      email: u.emailAddresses?.[0]?.emailAddress || null,
+      name: u.fullName || `${u.firstName || ""} ${u.lastName || ""}`.trim(),
+    }));
+
+    res.json({
+      success: true,
+      total: users.totalCount,
+      users: userData,
+    });
+  } catch (error) {
+    console.error("GET USERS ERROR:", error);
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
