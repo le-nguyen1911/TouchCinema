@@ -21,6 +21,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailed from "./pages/PaymentFailed";
 import About from "./pages/About";
 import Discount from "./pages/Discount";
+import ChatAI from "./components/ChatAI";
 
 const App = () => {
   const isAdminRoute = useLocation().pathname.startsWith("/admin");
@@ -70,6 +71,7 @@ const App = () => {
           <Route path="list-booking" element={<ListBookings />} />
         </Route>
       </Routes>
+      {!isAdminRoute && <ChatAI userId={user?.id || null} />}
       {!isAdminRoute && <Footer />}
     </>
   );

@@ -18,7 +18,6 @@ export const getNowPlayingMovies = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-// API to add a new show to the database
 export const addShow = async (req, res) => {
   try {
     const { movieId, showsInput, showPrice } = req.body;
@@ -26,7 +25,6 @@ export const addShow = async (req, res) => {
     let movie = await Movie.findById(movieId);
 
     if (!movie) {
-      // Fetch movie details and credits from TMDB API
       const [movieDetailsResponse, movieCreditsResponse] = await Promise.all([
         axios.get(
           `https://api.themoviedb.org/3/movie/${movieId}?language=vi-VN`,
@@ -59,7 +57,6 @@ export const addShow = async (req, res) => {
         runtime: movieApiData.runtime,
       };
 
-      //   addmovie to the db
 
       movie = await Movie.create(movieDetails);
     }
@@ -87,7 +84,6 @@ export const addShow = async (req, res) => {
   }
 };
 
-// API to get all shows from the database
 export const getShows = async (req, res) => {
   try {
     const shows = await Show.find({
@@ -96,7 +92,6 @@ export const getShows = async (req, res) => {
       .populate("movie")
       .sort({ showDateTime: 1 });
 
-    // Unique theo movie._id
     const movieMap = new Map();
 
     shows.forEach((show) => {
@@ -117,7 +112,6 @@ export const getShows = async (req, res) => {
 };
 
 
-// API to get a single show from the database
 export const getShow = async (req, res) => {
   try {
     const { movieId } = req.params;
@@ -153,7 +147,6 @@ export const getShow = async (req, res) => {
       });
     });
 
-    // sort each date's times
     Object.keys(dateTime).forEach(date => {
       dateTime[date].sort((a, b) => a.time.localeCompare(b.time));
     });

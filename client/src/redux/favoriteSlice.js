@@ -69,7 +69,6 @@ const favoriteSlice = createSlice({
         state.favoriteMovies = action.payload;
       })
       .addCase(updateFavoriteMovie.fulfilled, () => {
-        // không cần cập nhật thêm – đã refresh ở phía trên
       });
   },
 });

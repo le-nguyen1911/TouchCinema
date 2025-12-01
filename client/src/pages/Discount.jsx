@@ -52,7 +52,6 @@ const Discount = () => {
             className="bg-[#10172b] border border-white/10 rounded-xl p-6 md:p-10 
             flex flex-col md:flex-row gap-10 shadow-lg"
           >
-            {/* IMAGE */}
             <div className="md:w-1/2 flex justify-center">
               <img
                 src={promo.image}
@@ -61,7 +60,6 @@ const Discount = () => {
               />
             </div>
 
-            {/* TEXT CONTENT */}
             <div className="md:w-1/2">
               <h2 className="text-xl md:text-2xl font-bold mb-4 leading-snug">
                 {promo.title}

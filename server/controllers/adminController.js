@@ -33,7 +33,6 @@ export const getDashboardData = async (req, res) => {
   }
 };
 
-// API to get all shows
 export const getAllShows = async (req, res) => {
   try {
     const shows = await Show.find({ showDateTime: { $gte: new Date() } })

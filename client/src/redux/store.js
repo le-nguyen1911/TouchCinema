@@ -4,6 +4,7 @@ import showReducer from './showSlice.js'
 import favoriteReducer from './favoriteSlice.js'
 import bookingReducer from './bookingSlice.js'
 import searchReducer from './searchSlice.js'
+import chatAISlice from "./chatAISlice.js";
 export const store = configureStore({
   reducer: {
     admin: adminReducer,
@@ -11,5 +12,6 @@ export const store = configureStore({
     favorite: favoriteReducer,
     booking: bookingReducer,
     search: searchReducer,
+    chatAI: chatAISlice,
   },
 });

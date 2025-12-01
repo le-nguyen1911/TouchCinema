@@ -25,25 +25,21 @@ const MovieDetail = () => {
   const shows = useSelector((state) => state.show.shows);
   const favoriteMovies = useSelector((state) => state.favorite.favoriteMovies);
 
-  // --- Fetch Favorite ---
   useEffect(() => {
     if (user) {
       dispatch(fetchFavoriteMovies({ getToken }));
     }
   }, [user]);
 
-  // --- Click favorite ---
   const handleFavorite = () => {
     if (!user) return toast.error("Vui lòng đăng nhập trước!");
     dispatch(updateFavoriteMovie({ getToken, movieId: id }));
   };
 
-  // --- Fetch show by ID ---
   useEffect(() => {
     dispatch(fetchShowById({ id }));
   }, [id]);
 
-  // --- Khi Redux trả singleShow → đưa vào state show ---
   useEffect(() => {
     if (singleShow) {
       setShow({
@@ -53,7 +49,6 @@ const MovieDetail = () => {
     }
   }, [singleShow]);
 
-  // --- Fetch all shows (để load “phim bạn có thể thích”) ---
   useEffect(() => {
     dispatch(fetchShows({ getToken }));
   }, []);

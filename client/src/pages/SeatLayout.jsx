@@ -32,17 +32,13 @@ const SeatLayout = () => {
   const [selectedSeat, setSelectedSeat] = useState([]);
   const [selectedTime, setSelectedTime] = useState(null);
 
-  /* -------------------------
-      FETCH SHOW
-  ------------------------- */
+      //FETCH SHOW
   useEffect(() => {
     dispatch(fetchShowById({ id }));
   }, [id]);
 
-  /* -------------------------
-      FETCH OCCUPIED SEATS
-      Khi chọn giờ chiếu
-  ------------------------- */
+  //FETCH OCCUPIED SEATS
+
   useEffect(() => {
     if (selectedTime?.showId) {
       dispatch(
@@ -78,9 +74,7 @@ const SeatLayout = () => {
         : [...prev, seatId]
     );
   };
-  /* -------------------------
-   HANDLE BOOKING TICKETS
--------------------------- */
+  //HANDLE BOOKING TICKETS
   const handleBooking = async () => {
     if (!selectedTime) return toast.error("Vui lòng chọn thời gian!");
     if (selectedSeat.length === 0) return toast.error("Bạn chưa chọn ghế!");
@@ -105,9 +99,7 @@ const SeatLayout = () => {
     }
   };
 
-  /* -------------------------
-      RENDER SEAT
-  ------------------------- */
+  // RENDER SEAT
   const renderSeat = (row, count = 10) => (
     <div key={row} className="flex gap-2 mt-2">
       {Array.from({ length: count }, (_, i) => {
@@ -178,14 +170,18 @@ const SeatLayout = () => {
         <img src={assets.screenImage} alt="" />
         <p className="text-gray-400 text-sm mb-6">MÀN HÌNH</p>
 
-        <div className="flex flex-col items-center mt-10 text-md text-gray-300">
-          <div className="grid grid-cols-2 md:grid-cols-1 gap-8 md:gap-2 mb-6">
-            {groupRows[0].map((row) => renderSeat(row))}
+        <div className="flex flex-col items-center mt-10 text-md text-gray-300 w-full">
+          <div className="w-full flex flex-col md:flex-row justify-center gap-4 md:gap-6 lg:gap-10 mb-6">
+            {groupRows[0].map((row) => (
+              <div key={row}>{renderSeat(row)}</div>
+            ))}
           </div>
 
-          <div className="grid grid-cols-2 gap-11">
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 lg:gap-12">
             {groupRows.slice(1).map((group, idx) => (
-              <div key={idx}>{group.map((row) => renderSeat(row))}</div>
+              <div key={idx} className="flex flex-col items-center gap-4">
+                {group.map((row) => renderSeat(row))}
+              </div>
             ))}
           </div>
         </div>

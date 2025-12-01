@@ -57,7 +57,6 @@ const Movie = () => {
         {keyword ? `Kết quả tìm kiếm cho: "${keyword}"` : "Phim Đang Chiếu"}
       </h1>
 
-      {/* Không tìm thấy */}
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-40 text-gray-300">
           <h2 className="text-xl">Không tìm thấy phim phù hợp</h2>

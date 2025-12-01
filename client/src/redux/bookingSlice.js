@@ -3,9 +3,7 @@ import axios from "axios";
 
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
-/* ======================
-   GET MY BOOKINGS (CÓ TOKEN)
-====================== */
+  // GET MY BOOKINGS 
 export const fetchMyBookings = createAsyncThunk(
   "booking/fetchMyBookings",
   async ({ getToken }, { rejectWithValue }) => {
@@ -25,9 +23,7 @@ export const fetchMyBookings = createAsyncThunk(
   }
 );
 
-/* ======================
-   GET OCCUPIED SEATS (CÓ TOKEN)
-====================== */
+   //GET OCCUPIED SEATS 
 export const fetchOccupiedSeats = createAsyncThunk(
   "booking/fetchOccupiedSeats",
   async ({ showId, getToken }, { rejectWithValue }) => {
@@ -122,7 +118,6 @@ const bookingSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      /* Fetch My Bookings */
       .addCase(fetchMyBookings.pending, (state) => {
         state.loading = true;
       })
@@ -134,7 +129,6 @@ const bookingSlice = createSlice({
         state.loading = false;
       })
 
-      /* Fetch Occupied Seats */
       .addCase(fetchOccupiedSeats.pending, (state) => {
         state.loading = true;
       })
@@ -145,7 +139,6 @@ const bookingSlice = createSlice({
       .addCase(fetchOccupiedSeats.rejected, (state) => {
         state.loading = false;
       })
-      /* Book Tickets */
       .addCase(bookTickets.pending, (state) => {
         state.bookingLoading = true;
         state.bookingSuccess = false;
@@ -161,7 +154,6 @@ const bookingSlice = createSlice({
       .addCase(createVnpayPayment.fulfilled, (state, action) => {
         state.paymentUrl = action.payload;
       })
-      //hủy vé
       .addCase(cancelBooking.pending, (state) => {
         state.loading = true;
       })

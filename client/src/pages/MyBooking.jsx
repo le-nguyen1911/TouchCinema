@@ -23,7 +23,6 @@ const MyBooking = () => {
 
   const { myBookings, loading } = useSelector((state) => state.booking);
 
-  // booking ID cần hủy
   const [bookingToDelete, setBookingToDelete] = useState(null);
 
   useEffect(() => {
@@ -48,7 +47,6 @@ const MyBooking = () => {
     }
   };
 
-  // Hàm xác nhận hủy vé
   const confirmCancel = async () => {
     try {
       await dispatch(cancelBooking({ bookingId: bookingToDelete, getToken })).unwrap();
@@ -72,7 +70,6 @@ const MyBooking = () => {
           className="flex flex-col md:flex-row justify-between bg-primary/8 
           border border-primary/20 rounded-lg mt-4 p-2 max-w-4xl"
         >
-          {/* Left: movie info */}
           <div className="flex flex-col md:flex-row">
             <img
               src={image_base_url + item.show.movie.poster_path}
@@ -91,10 +88,9 @@ const MyBooking = () => {
             </div>
           </div>
 
-          {/* Right: seats and price */}
           <div className="flex flex-col md:items-end md:text-right justify-between p-4">
             <div className="flex items-center gap-4">
-              <p className="text-2xl font-semibold mb-3">
+              <p className="text-xl font-semibold mb-3">
                 {item.amount.toLocaleString("vi-VN")}
                 {CURRENCY}
               </p>
@@ -133,9 +129,7 @@ const MyBooking = () => {
         </div>
       ))}
 
-      {/* ==========================
-           POPUP XÁC NHẬN HỦY VÉ
-      =========================== */}
+
 
       {bookingToDelete && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
