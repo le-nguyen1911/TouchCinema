@@ -1,4 +1,3 @@
-// client/src/pages/admin/ListUser.jsx
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllUsers } from "../../redux/userSlice";
