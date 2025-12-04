@@ -11,7 +11,7 @@ const commentRouter = express.Router();
 
 commentRouter.get("/all", protectAdmin, getAllComments);
 commentRouter.get("/:movieId", getCommentsByMovie);
-commentRouter.post("/add", protectAdmin, addComment);
+commentRouter.post("/add",  addComment);
 commentRouter.delete("/:id", protectAdmin, deleteComment);
 
 export default commentRouter;

@@ -79,19 +79,16 @@ export const cancelBooking = async (req, res) => {
   try {
     const { bookingId } = req.params;
 
-    // Lấy booking
     const booking = await Booking.findById(bookingId);
     if (!booking) {
       return res.json({ success: false, message: "Booking not found" });
     }
 
-    // Lấy thông tin suất chiếu
     const showData = await Show.findById(booking.show);
     if (!showData) {
       return res.json({ success: false, message: "Show not found" });
     }
 
-    // Trả ghế về show
     booking.bookedSeats.forEach((seat) => {
       delete showData.occupiedSeats[seat];
     });
@@ -99,7 +96,6 @@ export const cancelBooking = async (req, res) => {
     showData.markModified("occupiedSeats");
     await showData.save();
 
-    // Xóa booking
     await Booking.findByIdAndDelete(bookingId);
 
     res.json({
