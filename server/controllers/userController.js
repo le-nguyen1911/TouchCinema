@@ -2,7 +2,6 @@ import { clerkClient } from "@clerk/express";
 import Booking from "../models/Booking.js";
 import Movie from "../models/Movie.js";
 
-// API Controller Function to Get User Bookings
 export const getUserBookings = async (req, res) => {
   try {
     const user = req.auth().userId;
@@ -20,7 +19,6 @@ export const getUserBookings = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-// API Controller Function to update Favorite Movie in Clerk User Metadata
 export const updateFavorite = async (req, res) => {
   try {
     const { movieId } = req.body;
@@ -89,6 +87,24 @@ export const getAllUsers = async (req, res) => {
     });
   } catch (error) {
     console.error("GET USERS ERROR:", error);
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await clerkClient.users.deleteUser(id);
+    await Booking.deleteMany({ user: id });
+
+    res.json({
+      success: true,
+      message: "Xóa người dùng thành công.",
+    });
+  } catch (error) {
+    console.error("DELETE USER ERROR:", error);
     res.json({
       success: false,
       message: error.message,

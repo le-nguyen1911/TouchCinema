@@ -6,7 +6,6 @@ axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
 export const image_base_url = import.meta.env.VITE_TMDB_IMAGE_BASE_URL;
 
-// CHECK ADMIN
 export const fetchIsAdmin = createAsyncThunk(
   "admin/fetchIsAdmin",
   async ({ getToken, location, navigate }, { rejectWithValue }) => {
@@ -27,7 +26,6 @@ export const fetchIsAdmin = createAsyncThunk(
   }
 );
 
-// GET DASHBOARD DATA
 export const fetchDashboardData = createAsyncThunk(
   "admin/fetchDashboardData",
   async ({ getToken }, { rejectWithValue }) => {
@@ -50,7 +48,6 @@ export const fetchDashboardData = createAsyncThunk(
     }
   }
 );
-// ADMIN GET ALL SHOWS
 export const fetchAdminAllShows = createAsyncThunk(
   "admin/fetchAdminAllShows",
   async ({ getToken }, { rejectWithValue }) => {

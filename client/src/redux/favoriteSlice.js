@@ -5,7 +5,6 @@ import toast from "react-hot-toast";
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 export const image_base_url = import.meta.env.VITE_TMDB_IMAGE_BASE_URL;
 
-// ====================== GET FAVORITES ==========================
 export const fetchFavoriteMovies = createAsyncThunk(
   "favorite/fetchFavoriteMovies",
   async ({ getToken }, { rejectWithValue }) => {
@@ -27,7 +26,6 @@ export const fetchFavoriteMovies = createAsyncThunk(
   }
 );
 
-// ====================== UPDATE FAVORITE ==========================
 export const updateFavoriteMovie = createAsyncThunk(
   "favorite/updateFavoriteMovie",
   async ({ getToken, movieId }, { rejectWithValue, dispatch }) => {
@@ -45,7 +43,6 @@ export const updateFavoriteMovie = createAsyncThunk(
       if (data.success) {
         toast.success(data.message);
 
-        // Refresh lại danh sách yêu thích
         dispatch(fetchFavoriteMovies({ getToken }));
       }
 

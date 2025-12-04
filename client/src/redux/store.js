@@ -6,6 +6,7 @@ import bookingReducer from "./bookingSlice.js";
 import searchReducer from "./searchSlice.js";
 import chatAISlice from "./chatAISlice.js";
 import userReducer from "./userSlice.js";
+import commentReducer from "./commentSlice.js"
 export const store = configureStore({
   reducer: {
     admin: adminReducer,
@@ -15,5 +16,6 @@ export const store = configureStore({
     search: searchReducer,
     chatAI: chatAISlice,
     users: userReducer,
+    comments: commentReducer,
   },
 });

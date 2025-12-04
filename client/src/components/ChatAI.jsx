@@ -25,7 +25,7 @@ const ChatAI = ({ userId }) => {
         onClick={() => setOpen(!open)}
         className="fixed bottom-6 right-6 bg-primary text-white px-4 py-3 rounded-full shadow-lg z-50"
       >
-        💬 Chat AI
+        TouchCinema Assistant
       </button>
 
       {open && (

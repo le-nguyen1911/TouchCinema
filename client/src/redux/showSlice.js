@@ -45,7 +45,6 @@ export const addShow = createAsyncThunk(
     try {
       const token = await getToken();
 
-      // Convert từ object → array để backend hiểu:
       const showsInput = Object.entries(dateTimeSelection).map(
         ([date, times]) => ({
           date,

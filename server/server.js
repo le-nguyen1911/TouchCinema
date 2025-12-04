@@ -10,6 +10,7 @@ import adminRouter from "./routes/adminRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import paymentRouter from "./routes/paymentRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
+import commentRoutes from "./routes/commentRoutes.js";
 
 const app = express();
 const port = 3000;
@@ -29,7 +30,7 @@ app.use("/api/booking", bookingRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/user", userRouter);
 app.use("/api/payment", paymentRouter);
-
+app.use("/api/comment", commentRoutes);
 app.get("/", (req, res) => res.send("TouchCinema Backend Running OK"));
 
 app.listen(port, () =>

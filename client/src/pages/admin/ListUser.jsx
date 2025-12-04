@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllUsers } from "../../redux/userSlice";
+import { fetchAllUsers, deleteUser } from "../../redux/userSlice";
 import { useAuth } from "@clerk/clerk-react";
+import toast from "react-hot-toast";
 
 const ListUser = () => {
   const dispatch = useDispatch();
@@ -12,6 +13,19 @@ const ListUser = () => {
   useEffect(() => {
     dispatch(fetchAllUsers({ limit: 50, offset: 0, getToken }));
   }, [dispatch, getToken]);
+
+  const handleDelete = (id) => {
+    if (!confirm("Bạn có chắc chắn muốn xoá user này?")) return;
+
+    dispatch(deleteUser({ userId: id, getToken }))
+      .then((res) => {
+        if (res.meta.requestStatus === "fulfilled") {
+          toast.success("Xoá user thành công!");
+        } else {
+          toast.error("Không thể xoá user!");
+        }
+      });
+  };
 
   return (
     <div className="p-6">
@@ -27,7 +41,8 @@ const ListUser = () => {
               <th className="p-2">ID</th>
               <th className="p-2">Email</th>
               <th className="p-2">Tên</th>
-                </tr>
+              <th className="p-2 text-center">Hành động</th>
+            </tr>
           </thead>
 
           <tbody className="text-sm font-light">
@@ -39,6 +54,15 @@ const ListUser = () => {
                 <td className="p-2 font-mono text-xs">{user.id}</td>
                 <td className="p-2">{user.email}</td>
                 <td className="p-2">{user.name}</td>
+
+                <td className="p-2 text-center">
+                  <button
+                    onClick={() => handleDelete(user.id)}
+                    className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs"
+                  >
+                    Xoá
+                  </button>
+                </td>
               </tr>
             ))}
 

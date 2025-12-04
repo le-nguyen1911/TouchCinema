@@ -23,6 +23,7 @@ import About from "./pages/About";
 import Discount from "./pages/Discount";
 import ChatAI from "./components/ChatAI";
 import ListUser from "./pages/admin/ListUser";
+import ListComment from "./pages/admin/ListComment";
 
 const App = () => {
   const isAdminRoute = useLocation().pathname.startsWith("/admin");
@@ -71,6 +72,7 @@ const App = () => {
           <Route path="list-show" element={<ListShows />} />
           <Route path="list-booking" element={<ListBookings />} />
           <Route path="list-users" element={<ListUser />} />
+          <Route path="list-comment" element={<ListComment />} />
         </Route>
       </Routes>
       {!isAdminRoute && <ChatAI userId={user?.id || null} />}

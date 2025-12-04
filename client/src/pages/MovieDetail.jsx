@@ -9,9 +9,16 @@ import Loading from "../components/Loading";
 import { fetchShowById, fetchShows, image_base_url } from "../redux/showSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useAuth, useUser } from "@clerk/clerk-react";
-import { fetchFavoriteMovies, updateFavoriteMovie } from "../redux/favoriteSlice";
+import {
+  fetchFavoriteMovies,
+  updateFavoriteMovie,
+} from "../redux/favoriteSlice";
 import toast from "react-hot-toast";
-
+import {
+  addComment,
+  deleteComment,
+  fetchComments,
+} from "../redux/commentSlice";
 const MovieDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -24,6 +31,11 @@ const MovieDetail = () => {
   const singleShow = useSelector((state) => state.show.singleShow);
   const shows = useSelector((state) => state.show.shows);
   const favoriteMovies = useSelector((state) => state.favorite.favoriteMovies);
+  const [commentText, setCommentText] = useState("");
+  const [rating, setRating] = useState(5);
+  const [filterStar, setFilterStar] = useState("all");
+
+  const { comments } = useSelector((state) => state.comments);
 
   useEffect(() => {
     if (user) {
@@ -34,6 +46,26 @@ const MovieDetail = () => {
   const handleFavorite = () => {
     if (!user) return toast.error("Vui lòng đăng nhập trước!");
     dispatch(updateFavoriteMovie({ getToken, movieId: id }));
+  };
+  const handleAddComment = () => {
+    if (!user) return toast.error("Vui lòng đăng nhập!");
+
+    dispatch(
+      addComment({
+        movieId: id,
+        rating,
+        comment: commentText,
+        getToken,
+      })
+    ).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        setCommentText("");
+        dispatch(fetchComments({ movieId: id }));
+      }
+    });
+  };
+  const handleDeleteComment = (commentId) => {
+    dispatch(deleteComment({ commentId, getToken }));
   };
 
   useEffect(() => {
@@ -48,6 +80,9 @@ const MovieDetail = () => {
       });
     }
   }, [singleShow]);
+  useEffect(() => {
+    dispatch(fetchComments({ movieId: id }));
+  }, [id]);
 
   useEffect(() => {
     dispatch(fetchShows({ getToken }));
@@ -90,7 +125,10 @@ const MovieDetail = () => {
             >
               Mua vé ngay
             </a>
-            <button onClick={handleFavorite} className="bg-gray-700 p-2.5 rounded-full transition-all duration-300 cursor-pointer active:scale-95">
+            <button
+              onClick={handleFavorite}
+              className="bg-gray-700 p-2.5 rounded-full transition-all duration-300 cursor-pointer active:scale-95"
+            >
               <Heart
                 className={`w-5 h-5 ${
                   favoriteMovies.some((movie) => movie._id === id)
@@ -118,6 +156,147 @@ const MovieDetail = () => {
           ))}
         </div>
       </div>
+      <div className="mt-16 max-w-4xl mx-auto">
+        <h2 className="text-2xl font-semibold mb-4">Bình luận phim</h2>
+
+        <div className="flex gap-3 mb-6">
+          {["all", 5, 4, 3, 2, 1].map((item) => (
+            <button
+              key={item}
+              onClick={() => {
+                setFilterStar(item);
+                dispatch(
+                  fetchComments({
+                    movieId: id,
+                    star: item === "all" ? "" : item,
+                  })
+                );
+              }}
+              className={`px-4 py-2 rounded-md transition ${
+                filterStar === item
+                  ? "bg-primary text-black"
+                  : "bg-gray-800 hover:bg-gray-700"
+              }`}
+            >
+              {item === "all" ? "Tất cả" : `${item} ⭐`}
+            </button>
+          ))}
+        </div>
+
+        {user ? (
+          <div className="bg-gray-800 p-4 rounded-xl mb-6">
+            <div className="flex gap-2 mb-3">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <StarIcon
+                  key={s}
+                  className={`size-6 cursor-pointer ${
+                    rating >= s ? "text-primary fill-primary" : "text-gray-500"
+                  }`}
+                  onClick={() => setRating(s)}
+                />
+              ))}
+            </div>
+
+            <textarea
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              className="w-full p-3 bg-gray-900 border border-gray-700 rounded-md"
+              placeholder="Viết bình luận..."
+              rows="3"
+            />
+
+            <button
+              onClick={() => {
+                if (!user) return toast.error("Vui lòng đăng nhập!");
+
+                dispatch(
+                  addComment({
+                    movieId: id,
+                    rating,
+                    comment: commentText,
+                    getToken,
+                  })
+                ).then((res) => {
+                  if (res.meta.requestStatus === "fulfilled") {
+                    setCommentText("");
+                    dispatch(
+                      fetchComments({
+                        movieId: id,
+                        star: filterStar === "all" ? "" : filterStar,
+                      })
+                    );
+                  }
+                });
+              }}
+              className="mt-3 px-6 py-2 bg-primary hover:bg-primary-dull rounded-md"
+            >
+              Gửi bình luận
+            </button>
+          </div>
+        ) : (
+          <p className="text-gray-400 mb-6">
+            * Vui lòng đăng nhập để bình luận.
+          </p>
+        )}
+
+        <div className="flex flex-col gap-6">
+          {comments.length === 0 && (
+            <p className="text-gray-400 italic">Chưa có bình luận.</p>
+          )}
+
+          {comments.map((c) => (
+            <div
+              key={c._id}
+              className="bg-gray-900 p-4 rounded-xl flex gap-4 relative"
+            >
+              <img
+                src={c.user?.image}
+                className="w-12 h-12 rounded-full object-cover"
+              />
+
+              <div className="flex-1">
+                <p className="font-medium">{c.user?.name}</p>
+
+                <div className="flex gap-1 mb-1">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <StarIcon
+                      key={s}
+                      className={`size-4 ${
+                        c.rating >= s
+                          ? "text-primary fill-primary"
+                          : "text-gray-600"
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                <p className="text-gray-300">{c.comment}</p>
+              </div>
+
+              {c.user?._id === user?.id && (
+                <button
+                  onClick={() =>
+                    dispatch(
+                      deleteComment({ commentId: c._id, getToken })
+                    ).then(() =>
+                      dispatch(
+                        fetchComments({
+                          movieId: id,
+                          star: filterStar === "all" ? "" : filterStar,
+                        })
+                      )
+                    )
+                  }
+                  className="absolute top-3 right-3 text-red-400 hover:text-red-600"
+                >
+                  Xóa
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
       <DateSelect datetime={show.datetime} id={id} />
       <p className="text-lg font-medium mt-2 mb-8">Phim bạn có thể thích</p>
       <div className="flex flex-wrap justify-center gap-8">

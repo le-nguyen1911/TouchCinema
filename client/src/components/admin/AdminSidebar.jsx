@@ -1,6 +1,7 @@
 import React from "react";
 import { assets } from "../../assets/assets";
 import {
+  CommandIcon,
   LayoutDashboardIcon,
   ListCollapseIcon,
   ListIcon,
@@ -22,6 +23,7 @@ const AdminSidebar = () => {
     { name: "Danh sách suất chiếu", path: "/admin/list-show", icon: ListIcon },
     { name: "Danh sách đặt vé", path: "/admin/list-booking", icon: ListCollapseIcon },
     { name: "Danh sách người dùng", path: "/admin/list-users", icon: UserIcon },
+    { name: "Danh sách bình luận", path: "/admin/list-comment", icon: CommandIcon },
   ];
 
   return (
