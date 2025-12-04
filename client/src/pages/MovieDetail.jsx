@@ -115,10 +115,10 @@ const MovieDetail = () => {
             {show.movie.release_date.split("_")[0]}
           </p>
           <div className="flex items-center flex-wrap gap-4 mt-4">
-            <button className="flex items-center gap-2 px-7 py-3 text-md bg-gray-800 hover:bg-gray-900 transition-all duration-300 rounded-md font-medium cursor-pointer active:scale-95">
+            {/* <button className="flex items-center gap-2 px-7 py-3 text-md bg-gray-800 hover:bg-gray-900 transition-all duration-300 rounded-md font-medium cursor-pointer active:scale-95">
               <PlayCircleIcon className="size-5" />
               Xem trailer
-            </button>
+            </button> */}
             <a
               href="#dateSelect"
               className="px-10 py-3 text-md bg-primary hover:bg-primary-dull transition-all duration-300 rounded-md font-medium cursor-pointer active:scale-95"

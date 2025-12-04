@@ -94,12 +94,10 @@ const adminSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // CHECK ADMIN
       .addCase(fetchIsAdmin.fulfilled, (state, action) => {
         state.isAdmin = action.payload;
       })
 
-      // DASHBOARD
      .addCase(fetchDashboardData.pending, (state) => {
         state.loadingDashboard = true;
       })
@@ -112,7 +110,6 @@ const adminSlice = createSlice({
       .addCase(fetchDashboardData.rejected, (state) => {
         state.loadingDashboard = false;
       })
-      // --- ALL SHOWS ---
       .addCase(fetchAdminAllShows.pending, (state) => {
         state.loadingAdminShows = true;
       })

@@ -2,15 +2,13 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
-export const image_base_url = import.meta.env.VITE_TMDB_IMAGE_BASE_URL;
-
 
 export const fetchComments = createAsyncThunk(
   "comments/fetchComments",
   async ({ movieId, star }, { rejectWithValue }) => {
     try {
       const res = await axios.get(`/api/comment/${movieId}`, {
-        params: { star }
+        params: { star },
       });
 
       if (!res.data.success) throw new Error(res.data.message);
@@ -20,7 +18,6 @@ export const fetchComments = createAsyncThunk(
     }
   }
 );
-
 
 export const addComment = createAsyncThunk(
   "comments/addComment",
@@ -41,7 +38,6 @@ export const addComment = createAsyncThunk(
     }
   }
 );
-
 
 export const deleteComment = createAsyncThunk(
   "comments/deleteComment",
@@ -73,7 +69,7 @@ export const fetchAllComments = createAsyncThunk(
 
       if (!res.data.success) throw new Error(res.data.message);
 
-      return res.data.comments; 
+      return res.data.comments;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message);
     }
@@ -96,25 +92,14 @@ const commentSlice = createSlice({
       .addCase(fetchComments.fulfilled, (s, a) => {
         s.loading = false;
         s.comments = a.payload;
-        s.error = null;
       })
       .addCase(fetchComments.rejected, (s, a) => {
         s.loading = false;
         s.error = a.payload;
       })
-
-      .addCase(addComment.pending, (s) => {
-        s.loading = true;
-      })
       .addCase(addComment.fulfilled, (s, a) => {
-        s.loading = false;
         s.comments.unshift(a.payload);
       })
-      .addCase(addComment.rejected, (s, a) => {
-        s.loading = false;
-        s.error = a.payload;
-      })
-
       .addCase(deleteComment.fulfilled, (s, a) => {
         s.comments = s.comments.filter((c) => c._id !== a.payload);
       })
@@ -124,13 +109,12 @@ const commentSlice = createSlice({
       })
       .addCase(fetchAllComments.fulfilled, (s, a) => {
         s.loading = false;
-        s.comments = a.payload;  
+        s.comments = a.payload;
       })
       .addCase(fetchAllComments.rejected, (s, a) => {
         s.loading = false;
         s.error = a.payload;
-      })
-
+      });
   },
 });
 

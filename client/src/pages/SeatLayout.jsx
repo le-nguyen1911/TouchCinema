@@ -32,12 +32,10 @@ const SeatLayout = () => {
   const [selectedSeat, setSelectedSeat] = useState([]);
   const [selectedTime, setSelectedTime] = useState(null);
 
-      //FETCH SHOW
   useEffect(() => {
     dispatch(fetchShowById({ id }));
   }, [id]);
 
-  //FETCH OCCUPIED SEATS
 
   useEffect(() => {
     if (selectedTime?.showId) {
@@ -74,7 +72,6 @@ const SeatLayout = () => {
         : [...prev, seatId]
     );
   };
-  //HANDLE BOOKING TICKETS
   const handleBooking = async () => {
     if (!selectedTime) return toast.error("Vui lòng chọn thời gian!");
     if (selectedSeat.length === 0) return toast.error("Bạn chưa chọn ghế!");
@@ -99,7 +96,6 @@ const SeatLayout = () => {
     }
   };
 
-  // RENDER SEAT
   const renderSeat = (row, count = 10) => (
     <div key={row} className="flex gap-2 mt-2">
       {Array.from({ length: count }, (_, i) => {

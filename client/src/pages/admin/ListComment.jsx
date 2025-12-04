@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchComments, deleteComment, fetchAllComments } from "../../redux/commentSlice";
+import { fetchAllComments, deleteComment } from "../../redux/commentSlice";
 import { useAuth } from "@clerk/clerk-react";
 import { StarIcon } from "lucide-react";
 import toast from "react-hot-toast";
@@ -8,28 +8,23 @@ import toast from "react-hot-toast";
 const ListComment = () => {
   const dispatch = useDispatch();
   const { getToken } = useAuth();
-
-  const { comments, loading, error } = useSelector((state) => state.comments);
+  const { comments, loading } = useSelector((state) => state.comments);
 
   useEffect(() => {
-    dispatch(fetchComments({ movieId: "all" }));
+    dispatch(fetchAllComments({ getToken }));
   }, []);
 
   const handleDelete = (id) => {
     if (!confirm("Bạn có chắc muốn xoá bình luận này?")) return;
 
-    dispatch(deleteComment({ commentId: id, getToken }))
-      .then((res) => {
-        if (res.meta.requestStatus === "fulfilled") {
-          toast.success("Đã xoá bình luận!");
-        } else {
-          toast.error("Xoá thất bại!");
-        }
-      });
+    dispatch(deleteComment({ commentId: id, getToken })).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        toast.success("Đã xoá bình luận!");
+      } else {
+        toast.error("Xoá thất bại!");
+      }
+    });
   };
-useEffect(() => {
-  dispatch(fetchAllComments({ getToken }));
-}, []);
 
   return (
     <div className="p-6">
@@ -54,16 +49,11 @@ useEffect(() => {
             {comments.map((c) => (
               <tr key={c._id} className="border-b bg-primary/5">
                 <td className="p-2 flex items-center gap-2">
-                  <img
-                    src={c.user?.image}
-                    alt=""
-                    className="w-8 h-8 rounded-full"
-                  />
+                  <img src={c.user?.image} className="w-8 h-8 rounded-full" />
                   {c.user?.name}
                 </td>
 
                 <td className="p-2">{c.movie?.title}</td>
-
                 <td className="p-2 max-w-xs truncate">{c.comment}</td>
 
                 <td className="p-2 flex">
@@ -94,7 +84,7 @@ useEffect(() => {
               </tr>
             ))}
 
-            {comments.length === 0 && !loading && (
+            {!loading && comments.length === 0 && (
               <tr>
                 <td colSpan={6} className="p-4 text-center text-gray-400 italic">
                   Không có bình luận nào.

@@ -2,31 +2,42 @@ import {
   ChartLineIcon,
   CircleDollarSignIcon,
   PlayCircleIcon,
-  StarIcon,
   UserIcon,
+  StarIcon,
+  PencilIcon,
+  TrashIcon,
 } from "lucide-react";
-import React, { useEffect } from "react";
+
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "../../components/Loading";
 import Title from "../../components/admin/Title";
 import BlurCircle from "../../components/BlurCircle";
+
 import dateFormat from "../../lib/dateFormat";
 import { fetchDashboardData, image_base_url } from "../../redux/adminSlice";
+
 import { useAuth, useUser } from "@clerk/clerk-react";
+import toast from "react-hot-toast";
+import { deleteShow, updateShow } from "../../redux/showSlice";
 
 const Dashboard = () => {
   const CURRENCY = import.meta.env.VITE_CURRENCY;
+
   const dispatch = useDispatch();
   const { getToken } = useAuth();
-  const {user} = useUser()
+  const { user } = useUser();
+
   const { dashboardData, loadingDashboard } = useSelector(
     (state) => state.admin
   );
 
-  useEffect(() => {
-    if(user){
-    dispatch(fetchDashboardData({ getToken }));
+  const [selectedShow, setSelectedShow] = useState(null);
+  const [editPrice, setEditPrice] = useState("");
 
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchDashboardData({ getToken }));
     }
   }, [user]);
 
@@ -56,6 +67,39 @@ const Dashboard = () => {
     },
   ];
 
+  const handleUpdateShow = () => {
+    if (!selectedShow) return;
+
+    dispatch(
+      updateShow({
+        getToken,
+        showId: selectedShow._id,
+        showPrice: Number(editPrice),
+      })
+    ).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        toast.success("Cập nhật giá vé thành công!");
+        setSelectedShow(null);
+        dispatch(fetchDashboardData({ getToken }));
+      } else {
+        toast.error("Cập nhật thất bại!");
+      }
+    });
+  };
+
+  const handleDeleteShow = (showId) => {
+    if (!confirm("Bạn chắc chắn muốn xóa suất chiếu này?")) return;
+
+    dispatch(deleteShow({ getToken, showId })).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        toast.success("Đã xóa thành công!");
+        dispatch(fetchDashboardData({ getToken }));
+      } else {
+        toast.error("Xóa thất bại!");
+      }
+    });
+  };
+
   return (
     <>
       <Title text1="Admin" text2="Dashboard" />
@@ -80,19 +124,20 @@ const Dashboard = () => {
       </div>
 
       <p className="mt-10 text-lg font-medium">Chương trình hoạt động</p>
+
       <div className="relative flex flex-wrap gap-6 mt-4 max-w-5xl">
         <BlurCircle top="100px" left="-10%" />
 
         {dashboardData.activeShows.map((show) => (
           <div
             key={show._id}
-            className="w-55 rounded-lg overflow-hidden h-full pb-3 bg-primary/30 border border-primary/20 hover:-translate-y-1 transition-all duration-300"
+            className="w-55 rounded-lg overflow-hidden bg-primary/30 border border-primary/20 hover:-translate-y-1 transition-all duration-300 pb-4 relative"
           >
             <img
               src={image_base_url + show.movie.poster_path}
-              alt="poster"
               className="h-60 w-full object-cover"
             />
+
             <p className="font-medium p-2 truncate">{show.movie.title}</p>
 
             <div className="flex items-center justify-between px-2">
@@ -106,12 +151,64 @@ const Dashboard = () => {
               </p>
             </div>
 
-            <p className="px-2 pt-2 text-sm text-gray-500">
+            <p className="px-2 pt-1 text-sm text-gray-400">
               {dateFormat(show.showDateTime)}
             </p>
+
+            <div className="flex justify-end gap-3 px-3 mt-2">
+              <button
+                onClick={() => {
+                  setSelectedShow(show);
+                  setEditPrice(show.showPrice);
+                }}
+                className="text-yellow-400 hover:text-yellow-500"
+              >
+                <PencilIcon size={20} />
+              </button>
+
+              <button
+                onClick={() => handleDeleteShow(show._id)}
+                className="text-red-500 hover:text-red-600"
+              >
+                <TrashIcon size={20} />
+              </button>
+            </div>
           </div>
         ))}
       </div>
+
+      {selectedShow && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-gray-900 w-80 p-5 rounded-lg border border-gray-700">
+            <h2 className="text-lg font-semibold mb-3">
+              Chỉnh sửa giá vé – {selectedShow.movie.title}
+            </h2>
+
+            <input
+              type="number"
+              value={editPrice}
+              onChange={(e) => setEditPrice(e.target.value)}
+              className="w-full p-2 rounded bg-gray-800 border border-gray-700"
+            />
+
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => setSelectedShow(null)}
+                className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
+              >
+                Hủy
+              </button>
+
+              <button
+                onClick={handleUpdateShow}
+                className="px-4 py-2 bg-primary text-black rounded hover:bg-primary/80"
+              >
+                Lưu
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

@@ -78,7 +78,6 @@ const AddShow = () => {
         if (res.success) {
           toast.success("Thêm suất chiếu thành công!");
 
-          // reset form
           setSelectedMovie(null);
           setDateTimeSelection({});
           setShowPrice("");
@@ -136,7 +135,6 @@ const AddShow = () => {
           ))}
         </div>
       </div>
-      {/* nhập giá  */}
       <div className="mt-8">
         <label htmlFor="" className="block text-sm font-medium mb-2">
           Giá suất chiếu
@@ -153,7 +151,6 @@ const AddShow = () => {
           <p className="text-gray-400 text-lg">{currency}</p>
         </div>
       </div>
-      {/* lựa chọn thời gian */}
       <div className="mt-6">
         <label htmlFor="" className="block text-sm font-medium mb-2">
           Lựa chọn ngày và thời gian
@@ -178,7 +175,6 @@ const AddShow = () => {
         </div>
       </div>
 
-      {/* Display Selected Times */}
       {Object.keys(dateTimeSelection).length > 0 && (
         <div className="mt-6">
           <h2 className="mb-2">Ngày-thời gian đã chọn</h2>

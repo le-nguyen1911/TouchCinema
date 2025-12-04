@@ -110,8 +110,6 @@ export const getShows = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-
-
 export const getShow = async (req, res) => {
   try {
     const { movieId } = req.params;
@@ -162,4 +160,76 @@ export const getShow = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+export const updateShow = async (req, res) => {
+  try {
+    const { showId } = req.params;
+    const { date, time, showPrice } = req.body;
 
+    const show = await Show.findById(showId);
+    if (!show) {
+      return res.json({ success: false, message: "Show not found" });
+    }
+
+    if (show.occupiedSeats && Object.keys(show.occupiedSeats).length > 0) {
+      return res.json({
+        success: false,
+        message: "Show này đã có người đặt vé, không thể chỉnh sửa."
+      });
+    }
+
+    if (showPrice !== undefined) {
+      show.showPrice = Number(showPrice);
+    }
+
+    if (date && time) {
+      const newDate = new Date(`${date}T${time}`);
+
+      if (isNaN(newDate.getTime())) {
+        return res.json({
+          success: false,
+          message: "Ngày giờ không hợp lệ!"
+        });
+      }
+
+      show.showDateTime = newDate;
+    }
+
+    await show.save();
+
+    res.json({
+      success: true,
+      message: "Cập nhật suất chiếu thành công.",
+      show
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+
+export const deleteShow = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const show = await Show.findById(id);
+    if (!show) {
+      return res.json({ success: false, message: "Show không tồn tại" });
+    }
+
+    if (show.occupiedSeats && Object.keys(show.occupiedSeats).length > 0) {
+      return res.json({
+        success: false,
+        message: "Show đã có người đặt vé, không thể xoá!"
+      });
+    }
+
+    await show.deleteOne();
+
+    res.json({ success: true, message: "Đã xoá suất chiếu thành công." });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: error.message });
+  }
+};

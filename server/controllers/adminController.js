@@ -45,7 +45,6 @@ export const getAllShows = async (req, res) => {
   }
 };
 
-// API to get all bookings
 export const getAllBookings = async (req, res) => {
   try {
     const bookings = await Booking.find({})

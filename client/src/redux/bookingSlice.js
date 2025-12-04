@@ -4,7 +4,6 @@ import axios from "axios";
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 export const image_base_url = import.meta.env.VITE_TMDB_IMAGE_BASE_URL;
 
-  // GET MY BOOKINGS 
 export const fetchMyBookings = createAsyncThunk(
   "booking/fetchMyBookings",
   async ({ getToken }, { rejectWithValue }) => {
@@ -24,7 +23,6 @@ export const fetchMyBookings = createAsyncThunk(
   }
 );
 
-   //GET OCCUPIED SEATS 
 export const fetchOccupiedSeats = createAsyncThunk(
   "booking/fetchOccupiedSeats",
   async ({ showId, getToken }, { rejectWithValue }) => {
@@ -43,7 +41,6 @@ export const fetchOccupiedSeats = createAsyncThunk(
     }
   }
 );
-//  BOOK TICKET
 export const bookTickets = createAsyncThunk(
   "booking/bookTickets",
   async ({ getToken, showId, seats }, { rejectWithValue }) => {

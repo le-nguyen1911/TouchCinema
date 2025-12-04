@@ -24,7 +24,6 @@ export const createBooking = async (req, res) => {
     const { showId, selectedSeats } = req.body;
     const { origin } = req.headers;
 
-    // Check if the seat is available for the selected show
     const isAvailable = await checkSeatsAvailability(showId, selectedSeats);
 
     if (!isAvailable) {
@@ -34,10 +33,8 @@ export const createBooking = async (req, res) => {
       });
     }
 
-    // Get the show details
     const showData = await Show.findById(showId).populate("movie");
 
-    // Create a new booking
     const booking = await Booking.create({
       user: userId,
       show: showId,
