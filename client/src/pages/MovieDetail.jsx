@@ -8,7 +8,7 @@ import MovieCard from "../components/MovieCard";
 import Loading from "../components/Loading";
 import { fetchShowById, fetchShows, image_base_url } from "../redux/showSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { useAuth, useUser } from "@clerk/clerk-react";
+import { useAuth, useClerk, useUser } from "@clerk/clerk-react";
 import {
   fetchFavoriteMovies,
   updateFavoriteMovie,
@@ -24,7 +24,7 @@ const MovieDetail = () => {
   const { id } = useParams();
   const { user } = useUser();
   const [show, setShow] = useState(null);
-
+  const { openSignIn } = useClerk();
   const { getToken } = useAuth();
   const dispatch = useDispatch();
 

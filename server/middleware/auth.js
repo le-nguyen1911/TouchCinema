@@ -9,14 +9,15 @@ export const protectAdmin = async (req, res, next) => {
 
     const user = await clerkClient.users.getUser(userId);
 
-    if (user.privateMetadata.role !== "admin") {
+    const role = user?.privateMetadata?.role;
+
+    const allowedRoles = ["admin", "staff"];
+
+    if (!allowedRoles.includes(role)) {
       return res.status(403).json({ success: false, message: "Not authorized" });
     }
 
-    req.user = {
-      id: userId,
-      role: "admin",
-    };
+    req.user = { id: userId, role };
 
     next();
   } catch (error) {

@@ -78,6 +78,7 @@ export const getAllUsers = async (req, res) => {
       id: u.id,
       email: u.emailAddresses?.[0]?.emailAddress || null,
       name: u.fullName || `${u.firstName || ""} ${u.lastName || ""}`.trim(),
+      role: u.privateMetadata.role
     }));
 
     res.json({

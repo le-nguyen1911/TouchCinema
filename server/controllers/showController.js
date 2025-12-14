@@ -162,10 +162,10 @@ export const getShow = async (req, res) => {
 };
 export const updateShow = async (req, res) => {
   try {
-    const { showId } = req.params;
+    const { id } = req.params;
     const { date, time, showPrice } = req.body;
 
-    const show = await Show.findById(showId);
+    const show = await Show.findById(id);
     if (!show) {
       return res.json({ success: false, message: "Show not found" });
     }

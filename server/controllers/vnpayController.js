@@ -37,7 +37,7 @@ const sendPaymentEmail = async (email, booking, movie) => {
         <p><b>Mã booking:</b> ${booking._id}</p>
         <p><b>Số tiền:</b> ${booking.amount.toLocaleString("vi-VN")}₫</p>
         <p><b>Số ghế:</b> ${booking.bookedSeats.join(", ")}</p>
-
+        
         <p>📍 Địa điểm: 576/145D Đoàn Văn Bơ, Quận 4</p>
         <br/>
         <p>Chúc bạn xem phim vui vẻ cùng TouchCinema!</p>

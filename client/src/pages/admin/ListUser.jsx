@@ -17,14 +17,13 @@ const ListUser = () => {
   const handleDelete = (id) => {
     if (!confirm("Bạn có chắc chắn muốn xoá user này?")) return;
 
-    dispatch(deleteUser({ userId: id, getToken }))
-      .then((res) => {
-        if (res.meta.requestStatus === "fulfilled") {
-          toast.success("Xoá user thành công!");
-        } else {
-          toast.error("Không thể xoá user!");
-        }
-      });
+    dispatch(deleteUser({ userId: id, getToken })).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        toast.success("Xoá user thành công!");
+      } else {
+        toast.error("Không thể xoá user!");
+      }
+    });
   };
 
   return (
@@ -41,6 +40,8 @@ const ListUser = () => {
               <th className="p-2">ID</th>
               <th className="p-2">Email</th>
               <th className="p-2">Tên</th>
+              <th className="p-2">Role</th>
+
               <th className="p-2 text-center">Hành động</th>
             </tr>
           </thead>
@@ -54,7 +55,7 @@ const ListUser = () => {
                 <td className="p-2 font-mono text-xs">{user.id}</td>
                 <td className="p-2">{user.email}</td>
                 <td className="p-2">{user.name}</td>
-
+                <td className="p-2">{user.role}</td>
                 <td className="p-2 text-center">
                   <button
                     onClick={() => handleDelete(user.id)}

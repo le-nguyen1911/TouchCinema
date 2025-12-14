@@ -103,6 +103,35 @@ export const cancelBooking = createAsyncThunk(
     }
   }
 );
+export const updateBookingByAdmin = createAsyncThunk(
+  "booking/updateBookingByAdmin",
+  async (
+    { bookingId, selectedSeats, isPaid, getToken },
+    { rejectWithValue }
+  ) => {
+    try {
+      const token = await getToken();
+
+      const { data } = await axios.put(
+        `/api/booking/admin/update/${bookingId}`,
+        {
+          selectedSeats,
+          isPaid,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (data.success) return data.booking;
+
+      return rejectWithValue(data.message);
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
+
 const bookingSlice = createSlice({
   name: "booking",
   initialState: {
@@ -162,6 +191,23 @@ const bookingSlice = createSlice({
         );
       })
       .addCase(cancelBooking.rejected, (state) => {
+        state.loading = false;
+      })
+      .addCase(updateBookingByAdmin.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateBookingByAdmin.fulfilled, (state, action) => {
+        state.loading = false;
+
+        const index = state.myBookings.findIndex(
+          (b) => b._id === action.payload._id
+        );
+
+        if (index !== -1) {
+          state.myBookings[index] = action.payload;
+        }
+      })
+      .addCase(updateBookingByAdmin.rejected, (state) => {
         state.loading = false;
       });
   },

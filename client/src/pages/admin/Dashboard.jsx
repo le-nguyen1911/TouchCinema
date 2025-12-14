@@ -18,9 +18,8 @@ import dateFormat from "../../lib/dateFormat";
 import { fetchDashboardData, image_base_url } from "../../redux/adminSlice";
 
 import { useAuth, useUser } from "@clerk/clerk-react";
-import toast from "react-hot-toast";
 import { deleteShow, updateShow } from "../../redux/showSlice";
-
+import toast from "react-hot-toast";
 const Dashboard = () => {
   const CURRENCY = import.meta.env.VITE_CURRENCY;
 
@@ -78,13 +77,15 @@ const Dashboard = () => {
       })
     ).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
-        toast.success("Cập nhật giá vé thành công!");
+        toast.success(data.message);
         setSelectedShow(null);
         dispatch(fetchDashboardData({ getToken }));
+        
       } else {
         toast.error("Cập nhật thất bại!");
       }
     });
+    window.location.reload();
   };
 
   const handleDeleteShow = (showId) => {
