@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import React, { useEffect, useState } from "react";
+import Chart from "react-apexcharts";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "../../components/Loading";
 import Title from "../../components/admin/Title";
@@ -20,6 +21,7 @@ import { fetchDashboardData, image_base_url } from "../../redux/adminSlice";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import { deleteShow, updateShow } from "../../redux/showSlice";
 import toast from "react-hot-toast";
+
 const Dashboard = () => {
   const CURRENCY = import.meta.env.VITE_CURRENCY;
 
@@ -77,15 +79,13 @@ const Dashboard = () => {
       })
     ).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
-        toast.success(data.message);
+        toast.success("Cập nhật thành công");
         setSelectedShow(null);
         dispatch(fetchDashboardData({ getToken }));
-        
       } else {
         toast.error("Cập nhật thất bại!");
       }
     });
-    window.location.reload();
   };
 
   const handleDeleteShow = (showId) => {
@@ -101,18 +101,56 @@ const Dashboard = () => {
     });
   };
 
+  const revenueChart = {
+    series: [
+      {
+        name: "Doanh thu",
+        data: dashboardData.revenueByDate?.map((i) => i.revenue) || [],
+      },
+    ],
+    options: {
+      chart: { type: "area", toolbar: { show: false } },
+      stroke: { curve: "smooth" },
+      dataLabels: { enabled: false },
+      colors: ["#8c52ff"],
+      xaxis: {
+        categories: dashboardData.revenueByDate?.map((i) => i.date) || [],
+      },
+    },
+  };
+
+  const topMovieChart = {
+    series: [
+      {
+        name: "Doanh thu",
+        data: dashboardData.topMovies?.map((i) => i.revenue) || [],
+      },
+    ],
+    options: {
+      chart: { type: "bar", toolbar: { show: false } },
+      plotOptions: {
+        bar: { borderRadius: 6, horizontal: false },
+      },
+      dataLabels: { enabled: false },
+      colors: ["#22c55e"],
+      xaxis: {
+        categories: dashboardData.topMovies?.map((i) => i.movieTitle) || [],
+      },
+    },
+  };
+
   return (
     <>
       <Title text1="Admin" text2="Dashboard" />
 
       <div className="relative flex flex-wrap gap-4 mt-6">
         <BlurCircle top="-100px" left="0" />
-
         <div className="flex flex-wrap gap-4 w-full">
           {dashboardCards.map((item, index) => (
             <div
               key={index}
-              className="flex items-center justify-between px-4 py-3 bg-primary/10 border border-primary/20 rounded-md max-w-50 w-full"
+              className="flex items-center justify-between px-4 py-3 
+              bg-primary/10 border border-primary/20 rounded-md max-w-50 w-full"
             >
               <div>
                 <h1 className="text-lg">{item.title}</h1>
@@ -124,6 +162,31 @@ const Dashboard = () => {
         </div>
       </div>
 
+      <p className="mt-10 text-lg font-medium">Thống kê</p>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4 max-w-5xl">
+        <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+          <h2 className="font-semibold mb-2">📈 Doanh thu theo ngày</h2>
+          <Chart
+            options={revenueChart.options}
+            series={revenueChart.series}
+            type="area"
+            height={300}
+            className=" text-black"  
+          />
+        </div>
+
+        <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+          <h2 className="font-semibold mb-2">🎬 Top phim doanh thu</h2>
+          <Chart
+            options={topMovieChart.options}
+            series={topMovieChart.series}
+            type="bar"
+            height={300}
+          />
+        </div>
+      </div>
+
       <p className="mt-10 text-lg font-medium">Chương trình hoạt động</p>
 
       <div className="relative flex flex-wrap gap-6 mt-4 max-w-5xl">
@@ -132,7 +195,8 @@ const Dashboard = () => {
         {dashboardData.activeShows.map((show) => (
           <div
             key={show._id}
-            className="w-55 rounded-lg overflow-hidden bg-primary/30 border border-primary/20 hover:-translate-y-1 transition-all duration-300 pb-4 relative"
+            className="w-55 rounded-lg overflow-hidden bg-primary/30 
+            border border-primary/20 hover:-translate-y-1 transition-all pb-4"
           >
             <img
               src={image_base_url + show.movie.poster_path}
@@ -145,8 +209,7 @@ const Dashboard = () => {
               <p className="text-lg font-medium">
                 {show.showPrice.toLocaleString()} {CURRENCY}
               </p>
-
-              <p className="flex items-center gap-1 text-sm text-gray-400 mt-1 pr-1">
+              <p className="flex items-center gap-1 text-sm text-gray-400">
                 <StarIcon className="size-5 text-primary fill-primary" />
                 {show.movie.vote_average.toFixed(1)}
               </p>
@@ -162,14 +225,14 @@ const Dashboard = () => {
                   setSelectedShow(show);
                   setEditPrice(show.showPrice);
                 }}
-                className="text-yellow-400 hover:text-yellow-500"
+                className="text-yellow-400"
               >
                 <PencilIcon size={20} />
               </button>
 
               <button
                 onClick={() => handleDeleteShow(show._id)}
-                className="text-red-500 hover:text-red-600"
+                className="text-red-500"
               >
                 <TrashIcon size={20} />
               </button>
@@ -195,14 +258,14 @@ const Dashboard = () => {
             <div className="flex justify-end gap-3 mt-4">
               <button
                 onClick={() => setSelectedShow(null)}
-                className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
+                className="px-4 py-2 bg-gray-700 rounded"
               >
                 Hủy
               </button>
 
               <button
                 onClick={handleUpdateShow}
-                className="px-4 py-2 bg-primary text-black rounded hover:bg-primary/80"
+                className="px-4 py-2 bg-primary text-black rounded"
               >
                 Lưu
               </button>

@@ -24,12 +24,13 @@ const MyBooking = () => {
   const { myBookings, loading } = useSelector((state) => state.booking);
 
   const [bookingToDelete, setBookingToDelete] = useState(null);
+  const [selectedBooking, setSelectedBooking] = useState(null);
 
   useEffect(() => {
     if (user) {
       dispatch(fetchMyBookings({ getToken }));
     }
-  }, [user]);
+  }, [user, dispatch, getToken]);
 
   const handlePayment = async (bookingId) => {
     try {
@@ -49,7 +50,9 @@ const MyBooking = () => {
 
   const confirmCancel = async () => {
     try {
-      await dispatch(cancelBooking({ bookingId: bookingToDelete, getToken })).unwrap();
+      await dispatch(
+        cancelBooking({ bookingId: bookingToDelete, getToken })
+      ).unwrap();
       toast.success("Hủy vé thành công!");
       setBookingToDelete(null);
     } catch (err) {
@@ -57,7 +60,9 @@ const MyBooking = () => {
     }
   };
 
-  return !loading ? (
+  if (loading) return <Loading />;
+
+  return (
     <div className="relative px-6 md:px-16 lg:px-40 pt-30 md:pt-40 min-h-[80vh]">
       <BlurCircle top="100px" left="100px" />
       <BlurCircle bottom="0" left="600px" />
@@ -68,7 +73,14 @@ const MyBooking = () => {
         <div
           key={item._id}
           className="flex flex-col md:flex-row justify-between bg-primary/8 
-          border border-primary/20 rounded-lg mt-4 p-2 max-w-4xl"
+          border border-primary/20 rounded-lg mt-4 p-2 max-w-4xl cursor-pointer"
+          onClick={() => {
+            if (item.isPaid) {
+              setSelectedBooking(item);
+            } else {
+              toast.error("Vui lòng thanh toán để xem mã QR vé");
+            }
+          }}
         >
           <div className="flex flex-col md:flex-row">
             <img
@@ -78,7 +90,9 @@ const MyBooking = () => {
             />
 
             <div className="flex flex-col p-4">
-              <p className="text-lg font-semibold">{item.show.movie.title}</p>
+              <p className="text-lg font-semibold">
+                {item.show.movie.title}
+              </p>
               <p className="text-gray-400 text-sm">
                 {timeFormat(item.show.movie.runtime)}
               </p>
@@ -97,8 +111,11 @@ const MyBooking = () => {
 
               {!item.isPaid && (
                 <button
-                  onClick={() => handlePayment(item._id)}
-                  className="bg-primary px-4 py-1.5 mb-3 text-sm rounded-full font-medium cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePayment(item._id);
+                  }}
+                  className="bg-primary px-4 py-1.5 mb-3 text-sm rounded-full font-medium"
                 >
                   Thanh toán ngay
                 </button>
@@ -106,8 +123,11 @@ const MyBooking = () => {
 
               {!item.isPaid && (
                 <button
-                  onClick={() => setBookingToDelete(item._id)}
-                  className="text-red-500 hover:text-red-700 text-sm underline cursor-pointer mb-3"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setBookingToDelete(item._id);
+                  }}
+                  className="text-red-500 hover:text-red-700 text-sm underline mb-3"
                 >
                   Hủy đặt vé
                 </button>
@@ -119,7 +139,6 @@ const MyBooking = () => {
                 <span className="text-gray-400">Tổng vé: </span>
                 {item.bookedSeats.length}
               </p>
-
               <p>
                 <span className="text-gray-400">Số ghế: </span>
                 {item.bookedSeats.join(", ")}
@@ -129,13 +148,47 @@ const MyBooking = () => {
         </div>
       ))}
 
+      {selectedBooking && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl w-80 text-center relative text-black">
+            <button
+              onClick={() => setSelectedBooking(null)}
+              className="absolute top-2 right-2 text-gray-500 hover:text-black"
+            >
+              ✕
+            </button>
 
+            <h2 className="text-lg font-semibold mb-3 ">🎟 Vé xem phim</h2>
+
+            <img
+              src={`http://localhost:3000${selectedBooking.qrCode}`}
+              alt="QR Ticket"
+              className="w-56 h-56 mx-auto mb-4"
+            />
+
+            <p className="text-sm">
+              <b>Phim:</b> {selectedBooking.show.movie.title}
+            </p>
+            <p className="text-sm">
+              <b>Ghế:</b> {selectedBooking.bookedSeats.join(", ")}
+            </p>
+            <p className="text-sm">
+              <b>Rạp:</b> 1
+            </p>
+            <p className="text-sm mt-1">
+              <b>Mã vé:</b> {selectedBooking._id.slice(-6).toUpperCase()}
+            </p>
+          </div>
+        </div>
+      )}
 
       {bookingToDelete && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
           <div className="bg-white p-6 rounded-xl shadow-lg w-80 text-center">
             <h2 className="text-lg font-semibold mb-4">Xác nhận hủy vé</h2>
-            <p className="text-gray-600 mb-6">Bạn có chắc muốn hủy vé này không?</p>
+            <p className="text-gray-600 mb-6">
+              Bạn có chắc muốn hủy vé này không?
+            </p>
 
             <div className="flex justify-center gap-4">
               <button
@@ -156,8 +209,6 @@ const MyBooking = () => {
         </div>
       )}
     </div>
-  ) : (
-    <Loading />
   );
 };
 

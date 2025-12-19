@@ -8,25 +8,121 @@ export const isAdmin = async (req, res) => {
 
 export const getDashboardData = async (req, res) => {
   try {
-    const bookings = await Booking.find({ isPaid: true });
+    const paidBookings = await Booking.find({ isPaid: true });
+
     const activeShows = await Show.find({
       showDateTime: { $gte: new Date() },
     }).populate("movie");
 
     const totalUser = await User.countDocuments();
 
-    const dashboardData = {
-      totalBookings: bookings.reduce(
-        (acc, booking) => acc + booking.bookedSeats.length,
-        0
-      ),
+    const totalBookings = paidBookings.reduce(
+      (acc, b) => acc + b.bookedSeats.length,
+      0
+    );
 
-      totalRevenue: bookings.reduce((acc, booking) => acc + booking.amount, 0),
-      activeShows,
-      totalUser,
-    };
+    const totalRevenue = paidBookings.reduce(
+      (acc, b) => acc + b.amount,
+      0
+    );
 
-    res.json({ success: true, dashboardData });
+    const revenueByDate = await Booking.aggregate([
+      { $match: { isPaid: true } },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$createdAt",
+            },
+          },
+          revenue: { $sum: "$amount" },
+        },
+      },
+      { $sort: { _id: 1 } },
+      {
+        $project: {
+          _id: 0,
+          date: "$_id",
+          revenue: 1,
+        },
+      },
+    ]);
+
+    const bookingsByDate = await Booking.aggregate([
+      { $match: { isPaid: true } },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$createdAt",
+            },
+          },
+          total: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+      {
+        $project: {
+          _id: 0,
+          date: "$_id",
+          total: 1,
+        },
+      },
+    ]);
+
+    const topMovies = await Booking.aggregate([
+      { $match: { isPaid: true } },
+      {
+        $lookup: {
+          from: "shows",
+          localField: "show",
+          foreignField: "_id",
+          as: "show",
+        },
+      },
+      { $unwind: "$show" },
+      {
+        $group: {
+          _id: "$show.movie",
+          revenue: { $sum: "$amount" },
+          tickets: { $sum: 1 },
+        },
+      },
+      {
+        $lookup: {
+          from: "movies",
+          localField: "_id",
+          foreignField: "_id",
+          as: "movie",
+        },
+      },
+      { $unwind: "$movie" },
+      { $sort: { revenue: -1 } },
+      { $limit: 5 },
+      {
+        $project: {
+          _id: 0,
+          movieTitle: "$movie.title",
+          revenue: 1,
+          tickets: 1,
+        },
+      },
+    ]);
+
+    res.json({
+      success: true,
+      dashboardData: {
+        totalBookings,
+        totalRevenue,
+        activeShows,
+        totalUser,
+        revenueByDate,
+        bookingsByDate,
+        topMovies,
+      },
+    });
   } catch (error) {
     console.error(error);
     res.json({ success: false, message: error.message });

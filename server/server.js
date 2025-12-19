@@ -6,6 +6,7 @@ import { clerkMiddleware } from "@clerk/express";
 
 import { serve } from "inngest/express";
 import { inngest, functions } from "./inngest/index.js";
+import path from "path";
 
 import showRouter from "./routes/showRoutes.js";
 import bookingRouter from "./routes/bookingRoutes.js";
@@ -33,7 +34,7 @@ app.use("/api/admin", adminRouter);
 app.use("/api/user", userRouter);
 app.use("/api/payment", paymentRouter);
 app.use("/api/comment", commentRoutes);
-
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.get("/", (req, res) => res.send("TouchCinema Backend Running OK"));
 
 app.listen(port, () =>
