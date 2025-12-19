@@ -161,7 +161,7 @@ const MyBooking = () => {
             <h2 className="text-lg font-semibold mb-3 ">🎟 Vé xem phim</h2>
 
             <img
-              src={`http://localhost:3000${selectedBooking.qrCode}`}
+              src={selectedBooking.qrCode}
               alt="QR Ticket"
               className="w-56 h-56 mx-auto mb-4"
             />
